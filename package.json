@@ -2,9 +2,9 @@
   "name": "sistemaenviocuestionarios",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
-    "dev": "nodemon src/index.ts",
+    "dev": "nodemon",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,7 +20,11 @@
   },
   "homepage": "https://github.com/MarcosBrindis/sistemaEnvioCuestionarios#readme",
   "dependencies": {
-    "express": "^5.1.0"
+    "@types/dotenv": "^6.1.1",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "mysql2": "^3.14.0",
+    "node-cron": "^3.0.3"
   },
   "devDependencies": {
     "@types/express": "^5.0.5",
