@@ -5,6 +5,7 @@ import { testConnection } from './src/core/db/mysl/connection';
 import { requestLogger } from './src/core/middleware/requestLogger';
 import { errorHandler } from './src/core/middleware/errorHandler';
 import typeQuestionRoutes from './src/typeQuestion/infrastructure/http/router/typeQuestionRoutes';
+import questionRoutes from './src/question/infrastructure/http/router/questionRoutes';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -20,6 +21,7 @@ async function startServer() {
     
     // Rutas
     app.use('/api/tipo-pregunta', typeQuestionRoutes);
+    app.use('/api/pregunta', questionRoutes);
 
     // Ruta raíz
     app.get('/', (_req, res) => {
