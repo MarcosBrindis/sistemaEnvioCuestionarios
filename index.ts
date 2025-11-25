@@ -1,5 +1,8 @@
 import express from 'express';
 import cors from 'cors';
+import { swaggerUiSetup } from './src/config/swagger';
+import swaggerUi from "swagger-ui-express";
+
 
 import { testConnection } from './src/core/db/mysl/connection';
 import { requestLogger } from './src/core/middleware/requestLogger';
@@ -31,6 +34,8 @@ async function startServer() {
     app.get('/', (_req, res) => {
         res.send('servidor iniciado');
     });
+
+    app.use("/docs", swaggerUi.serve, swaggerUiSetup);
     
     // Manejo de errores (debe ir al final)
     app.use(errorHandler);
