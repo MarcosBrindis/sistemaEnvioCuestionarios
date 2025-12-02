@@ -15,5 +15,6 @@ export interface QuestionRepository {
   hasLikertOptions(): Promise<boolean>;
   // Métodos para obtener opciones de una pregunta
   getQuestionWithOptions(idPregunta: number): Promise<any>;
+  getAllQuestionsWithOptions(): Promise<any[]>;
   getLikertOptions(): Promise<any[]>;
 }
