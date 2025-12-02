@@ -146,6 +146,54 @@ export class QuestionRepositoryMySQL extends BaseQuestionRepository {
     };
   }
 
+  async getAllQuestionsWithOptions(): Promise<any[]> {
+    // Consulta con JOIN para obtener todas las preguntas con sus opciones
+    const [rows]: any = await MysqlConnection.execute(
+      `SELECT 
+        p.id_pregunta,
+        p.texto_pregunta,
+        p.es_obligatoria,
+        p.id_tipo_pregunta,
+        tp.nombre as tipo_pregunta_nombre,
+        op.id_opcion_pregunta,
+        op.texto_opcion,
+        op.etiqueta
+      FROM pregunta p
+      INNER JOIN tipo_pregunta tp ON p.id_tipo_pregunta = tp.id_tipo_pregunta
+      LEFT JOIN opcion_pregunta op ON p.id_pregunta = op.id_pregunta
+      ORDER BY p.id_pregunta, op.etiqueta`
+    );
+
+    // Agrupar opciones por pregunta
+    const questionsMap = new Map();
+    
+    rows.forEach((row: any) => {
+      const questionId = row.id_pregunta;
+      
+      if (!questionsMap.has(questionId)) {
+        questionsMap.set(questionId, {
+          id_pregunta: row.id_pregunta,
+          texto_pregunta: row.texto_pregunta,
+          es_obligatoria: row.es_obligatoria,
+          id_tipo_pregunta: row.id_tipo_pregunta,
+          tipo_pregunta_nombre: row.tipo_pregunta_nombre,
+          opciones: []
+        });
+      }
+      
+      // Agregar opción si existe
+      if (row.id_opcion_pregunta) {
+        questionsMap.get(questionId).opciones.push({
+          id_opcion_pregunta: row.id_opcion_pregunta,
+          texto_opcion: row.texto_opcion,
+          etiqueta: row.etiqueta
+        });
+      }
+    });
+
+    return Array.from(questionsMap.values());
+  }
+
   async getLikertOptions(): Promise<any[]> {
     const [rows]: any = await MysqlConnection.execute(
       `SELECT id_opcion_pregunta, texto_opcion, etiqueta 

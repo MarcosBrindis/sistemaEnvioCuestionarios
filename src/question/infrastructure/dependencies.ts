@@ -1,7 +1,7 @@
 import { CreateQuestion } from '../application/usecase/CreateQuestion';
 import { UpdateQuestion } from '../application/usecase/UpdateQuestion';
 import { DeleteQuestion } from '../application/usecase/DeleteQuestion';
-import { GetQuestionById, GetAllQuestions, GetQuestionsByTypeId, SearchQuestionsByText } from '../application/usecase/GetQuestion';
+import { GetQuestionById, GetAllQuestions, GetQuestionsByTypeId, SearchQuestionsByText, GetQuestionsWithOptions, GetQuestionWithOptionsById } from '../application/usecase/GetQuestion';
 import { QuestionRepositoryMySQL } from './database/mysql/QuestionRepositoryMySQL';
 
 // Instancia del repositorio unificado
@@ -15,4 +15,6 @@ export const dependencies = {
   getAllQuestions: new GetAllQuestions(questionRepo),
   getQuestionsByTypeId: new GetQuestionsByTypeId(questionRepo),
   searchQuestionsByText: new SearchQuestionsByText(questionRepo),
+  getQuestionsWithOptions: new GetQuestionsWithOptions(questionRepo),
+  getQuestionWithOptionsById: new GetQuestionWithOptionsById(questionRepo),
 };

@@ -35,3 +35,19 @@ export class SearchQuestionsByText {
     return await this.repo.searchByText(texto.trim());
   }
 }
+
+export class GetQuestionsWithOptions {
+  constructor(private repo: QuestionRepository) {}
+
+  async execute(): Promise<any[]> {
+    return await this.repo.getAllQuestionsWithOptions();
+  }
+}
+
+export class GetQuestionWithOptionsById {
+  constructor(private repo: QuestionRepository) {}
+
+  async execute(id: number): Promise<any> {
+    return await this.repo.getQuestionWithOptions(id);
+  }
+}
