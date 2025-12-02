@@ -22,4 +22,6 @@ export interface FormularioRepository {
   // Comprobaciones adicionales
   formHasEncuestaActive(formularioId: number): Promise<boolean>;
   preguntaExists(preguntaId: number): Promise<boolean>;
+
+  getQuestionsWithOptionsByFormId(formularioId: number): Promise<any[]>;
 }

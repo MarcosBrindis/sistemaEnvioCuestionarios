@@ -3,6 +3,51 @@ import { FormularioRepository } from '../../../domain/port/formRepository';
 import { Formulario } from '../../../domain/model/form';
 
 export class FormularioRepositoryMySQL implements FormularioRepository {
+  async getQuestionsWithOptionsByFormId(formularioId: number): Promise<any[]> {
+    // 1. Obtener preguntas asociadas al formulario y su orden
+    const [preguntas]: any = await MysqlConnection.execute(
+      `SELECT fp.id_pregunta, fp.orden, p.texto_pregunta, p.es_obligatoria, p.id_tipo_pregunta
+       FROM formulacion_pregunta fp
+       JOIN pregunta p ON fp.id_pregunta = p.id_pregunta
+       WHERE fp.id_formulario = ?
+       ORDER BY fp.orden ASC`,
+      [formularioId]
+    );
+
+    // 2. Para cada pregunta, obtener tipo y opciones
+    const results = [];
+    for (const pregunta of preguntas) {
+      // Obtener tipo de pregunta
+      const [tipoRows]: any = await MysqlConnection.execute(
+        `SELECT id_tipo_pregunta, nombre FROM tipo_pregunta WHERE id_tipo_pregunta = ?`,
+        [pregunta.id_tipo_pregunta]
+      );
+      const tipoPregunta = tipoRows[0] || { id_tipo_pregunta: pregunta.id_tipo_pregunta, nombre: null };
+
+      // Obtener opciones
+      const [opciones]: any = await MysqlConnection.execute(
+        `SELECT id_opcion_pregunta, texto_opcion, etiqueta FROM opcion_pregunta WHERE id_pregunta = ?`,
+        [pregunta.id_pregunta]
+      );
+
+      results.push({
+        id: pregunta.id_pregunta,
+        texto_pregunta: pregunta.texto_pregunta,
+        es_obligatoria: pregunta.es_obligatoria,
+        orden_en_formulario: pregunta.orden,
+        tipo_pregunta: {
+          id: tipoPregunta.id_tipo_pregunta,
+          nombre: tipoPregunta.nombre
+        },
+        opciones: opciones.map((op: any) => ({
+          id: op.id_opcion_pregunta,
+          texto_opcion: op.texto_opcion,
+          etiqueta: op.etiqueta
+        }))
+      });
+    }
+    return results;
+  }
   async create(data: Omit<Formulario, 'id_formulario' | 'fecha_creacion'>): Promise<Formulario> {
     const [result]: any = await MysqlConnection.execute(
       `INSERT INTO formulario (titulo, descripcion, fecha_creacion, is_active) VALUES (?, ?, NOW(), ?)`,
@@ -75,12 +120,10 @@ export class FormularioRepositoryMySQL implements FormularioRepository {
       `DELETE FROM formulacion_pregunta WHERE id_formulario = ? AND id_pregunta = ?`,
       [formularioId, preguntaId]
     );
-    // Reordenar para mantener consecutividad: renumera los ordenes asc por orden
     const [rows]: any = await MysqlConnection.execute(
       `SELECT id_pregunta FROM formulacion_pregunta WHERE id_formulario = ? ORDER BY orden ASC`,
       [formularioId]
     );
-    // Reassign orders starting at 1
     let order = 1;
     for (const r of rows) {
       await MysqlConnection.execute(

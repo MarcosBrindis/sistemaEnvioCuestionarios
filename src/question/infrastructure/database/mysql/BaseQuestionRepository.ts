@@ -38,6 +38,9 @@ export abstract class BaseQuestionRepository implements QuestionRepository {
   getQuestionWithOptions(_idPregunta: number): Promise<any> {
     return Promise.reject(new Error('Method not implemented'));
   }
+  getAllQuestionsWithOptions(): Promise<any[]> {
+    return Promise.reject(new Error('Method not implemented'));
+  }
   getLikertOptions(): Promise<any[]> {
     return Promise.reject(new Error('Method not implemented'));
   }

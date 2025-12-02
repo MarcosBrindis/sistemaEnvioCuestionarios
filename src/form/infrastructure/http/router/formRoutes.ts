@@ -11,6 +11,12 @@ import { requestLogger } from '../../../../core/middleware/requestLogger';
 const router = Router();
 router.use(requestLogger);
 
+// ...otras rutas...
+
+import { getQuestionsWithOptionsController } from '../controller/getQuestionsWithOptionsController';
+
+router.get('/api/formulario/:id/preguntas', getQuestionsWithOptionsController);
+
 /**
  * @openapi
  * /api/formulario:
@@ -196,6 +202,34 @@ router.get('/', getFormularios);
 router.get('/:id', getFormularios);
 router.patch('/:id', updateFormulario);
 router.delete('/:id', deleteFormulario);
+
+/**
+ * @openapi
+ * /api/formulario/{id}/preguntas:
+ *   get:
+ *     tags:
+ *       - Formularios
+ *     summary: Obtener todas las preguntas y sus opciones asociadas a un formulario
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Listado de preguntas y opciones del formulario
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ */
+router.get('/:id/preguntas', getQuestionsWithOptionsController);
 
 // Asociaciones
 router.post('/:id/preguntas', addPregunta);
