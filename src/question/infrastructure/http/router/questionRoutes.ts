@@ -4,6 +4,7 @@ import { createQuestionController } from '../controller/createQuestionController
 import { updateQuestionController } from '../controller/updateQuestionController';
 import { deleteQuestionController } from '../controller/deleteQuestionController';
 import { getQuestionsController } from '../controller/getQuestionsController';
+import { getQuestionsWithOptionsController } from '../controller/getQuestionsWithOptionsController';
 
 const router = Router();
 
@@ -144,6 +145,90 @@ const getQuestions = getQuestionsController(
 
 router.post('/', createQuestion);
 router.get('/', getQuestions);
+
+// Ruta para obtener todas las preguntas con sus opciones (DEBE IR ANTES DE /:id)
+const getQuestionsWithOptions = getQuestionsWithOptionsController(
+  dependencies.getQuestionsWithOptions
+);
+
+/**
+ * @openapi
+ * /api/pregunta/con-opciones:
+ *   get:
+ *     tags:
+ *       - Preguntas
+ *     summary: Obtener todas las preguntas con sus opciones
+ *     description: Retorna todas las preguntas del sistema junto con sus opciones asociadas (si las tienen). Incluye el tipo de pregunta y sus opciones en un formato completo.
+ *     responses:
+ *       200:
+ *         description: Lista de preguntas con sus opciones incluidas
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       type:
+ *                         type: string
+ *                         example: preguntas
+ *                       id:
+ *                         type: string
+ *                         example: "101"
+ *                       attributes:
+ *                         $ref: '#/components/schemas/PreguntaAttributes'
+ *                       relationships:
+ *                         type: object
+ *                         properties:
+ *                           tipo-pregunta:
+ *                             type: object
+ *                             properties:
+ *                               data:
+ *                                 type: object
+ *                                 properties:
+ *                                   type:
+ *                                     type: string
+ *                                     example: tipos-pregunta
+ *                                   id:
+ *                                     type: string
+ *                                     example: "2"
+ *                                   nombre:
+ *                                     type: string
+ *                                     example: Opción Múltiple
+ *                       included:
+ *                         type: object
+ *                         properties:
+ *                           opciones:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *                               properties:
+ *                                 type:
+ *                                   type: string
+ *                                   example: opciones-pregunta
+ *                                 id:
+ *                                   type: string
+ *                                   example: "50"
+ *                                 attributes:
+ *                                   type: object
+ *                                   properties:
+ *                                     texto_opcion:
+ *                                       type: string
+ *                                       example: JavaScript
+ *                                     etiqueta:
+ *                                       type: string
+ *                                       example: A
+ *                 meta:
+ *                   type: object
+ *                   properties:
+ *                     total:
+ *                       type: integer
+ *                       example: 10
+ */
+router.get('/con-opciones', getQuestionsWithOptions);
 
 /**
  * @openapi
