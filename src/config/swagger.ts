@@ -19,6 +19,44 @@ const options: swaggerJsdoc.Options = {
     ],
     components: {
       schemas: {
+        RespuestaAttributes: {
+          type: "object",
+          properties: {
+            id_respuesta: { type: "integer", example: 1 },
+            id_egresado: { type: "integer", example: 1 },
+            id_formulario: { type: "integer", example: 2 },
+            fecha_respuesta: { type: "string", format: "date-time", example: "2025-12-09T12:00:00Z" },
+            respuestas_json: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  id_pregunta: { type: "integer", example: 10 },
+                  valor: { type: "string", example: "Respuesta del egresado" }
+                }
+              }
+            }
+          }
+        },
+        RespuestaResource: {
+          type: "object",
+          properties: {
+            id_respuesta: { type: "integer", example: 1 },
+            id_egresado: { type: "integer", example: 1 },
+            id_formulario: { type: "integer", example: 2 },
+            fecha_respuesta: { type: "string", format: "date-time", example: "2025-12-09T12:00:00Z" },
+            respuestas_json: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  id_pregunta: { type: "integer", example: 10 },
+                  valor: { type: "string", example: "Respuesta del egresado" }
+                }
+              }
+            }
+          }
+        },
         FormularioAttributes: {
           type: "object",
           properties: {
