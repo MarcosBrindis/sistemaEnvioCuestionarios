@@ -374,6 +374,7 @@ const options: swaggerJsdoc.Options = {
   },
   apis: [
     `${path.join(__dirname, "../../**/*.ts")}`,
+    `${path.join(__dirname, "../group/infrastructure/http/swagger/group.swagger.ts")}`,
   ],
 };
 

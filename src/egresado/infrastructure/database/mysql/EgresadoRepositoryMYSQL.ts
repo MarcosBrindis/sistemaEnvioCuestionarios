@@ -91,7 +91,7 @@ export class EgresadoRepositoryMySQL extends BaseEgresadoRepository {
     }
   }
 
-  private async findById(id: number): Promise<Egresado | null> {
+  async findById(id: number): Promise<Egresado | null> {
     const [rows]: any = await MysqlConnection.execute(
       `SELECT * FROM egresado WHERE id_egresado = ?`,
       [id]

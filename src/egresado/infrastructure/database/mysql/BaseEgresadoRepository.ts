@@ -2,6 +2,7 @@ import { EgresadoRepository, PeriodoRepository, ProgramaEducativoRepository } fr
 import { Egresado } from '../../../domain/model/egresado';
 
 export abstract class BaseEgresadoRepository implements EgresadoRepository {
+  abstract findById(id: number): Promise<Egresado | null>;
   create(_data: Omit<Egresado, 'id_egresado'>): Promise<Egresado> {
     return Promise.reject(new Error('Method not implemented'));
   }
