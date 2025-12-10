@@ -11,6 +11,7 @@ import typeQuestionRoutes from './src/typeQuestion/infrastructure/http/router/ty
 import questionRoutes from './src/question/infrastructure/http/router/questionRoutes';
 import opcionPreguntaRoutes from './src/optionQuestion/infrastructure/http/router/opcionPreguntaRoutes';
 import formRoutes from './src/form/infrastructure/http/router/formRoutes';
+import egresadoRoutes from './src/egresado/infrastructure/http/routes/egresadoRoutes'
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -29,6 +30,7 @@ async function startServer() {
     app.use('/api/pregunta', questionRoutes);
     app.use('/api/opcion-pregunta', opcionPreguntaRoutes);
     app.use('/api/formulario', formRoutes);
+    app.use('/api/egresado', egresadoRoutes)
 
     // Ruta raíz
     app.get('/', (_req, res) => {
