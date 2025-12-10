@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { dependencies } from '../../dependencies';
 import { syncEgresadosController } from '../controller/syncEgresadosController';
+import laborAchievementRoutes from '../../../../laborAchievement/infrastructure/http/router/laborAchievementRoutes';
+import academicAchievementRoutes from '../../../../academicAchievement/infrastructure/http/router/academicAchievementRoutes';
 import { requestLogger } from '../../../../core/middleware/requestLogger';
 
 const router = Router();
@@ -99,5 +101,9 @@ router.use(requestLogger);
 const syncEgresados = syncEgresadosController(dependencies.syncEgresadosFromPlatinum);
 
 router.post('/sync', syncEgresados);
+
+// Rutas para gestión de trayectoria (logros)
+router.use('/:id/logros-laborales', laborAchievementRoutes);
+router.use('/:id/logros-academicos', academicAchievementRoutes);
 
 export default router;
