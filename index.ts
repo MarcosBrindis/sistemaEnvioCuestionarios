@@ -13,6 +13,7 @@ import opcionPreguntaRoutes from './src/optionQuestion/infrastructure/http/route
 import formRoutes from './src/form/infrastructure/http/router/formRoutes';
 import egresadoRoutes from './src/egresado/infrastructure/http/routes/egresadoRoutes'
 import respuestaRoutes from './src/respuesta/infrastructure/http/router/respuestaRoutes';
+import groupRoutes from './src/group/infrastructure/http/router/groupRoutes';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -33,6 +34,7 @@ async function startServer() {
     app.use('/api/formulario', formRoutes);
     app.use('/api/respuesta', respuestaRoutes);
     app.use('/api/egresado', egresadoRoutes)
+    app.use('/api/grupo', groupRoutes)
 
     // Ruta raíz
     app.get('/', (_req, res) => {
