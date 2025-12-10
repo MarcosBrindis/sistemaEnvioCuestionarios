@@ -1,3 +1,4 @@
+
 import { Request, Response } from 'express';
 import { respuestaRepository } from '../../../infrastructure/dependencies';
 
@@ -8,7 +9,23 @@ export const getRespuestaByIdController = async (req: Request, res: Response) =>
     if (!respuesta) {
       return res.status(404).json({ error: 'Respuesta no encontrada' });
     }
-    res.json(respuesta);
+    const data = {
+      type: 'respuestas',
+      id: String(respuesta.id_respuesta),
+      attributes: {
+        fecha_respuesta: respuesta.fecha_respuesta,
+        respuestas_json: respuesta.respuestas_json,
+      },
+      relationships: {
+        egresado: {
+          data: { type: 'egresados', id: String(respuesta.id_egresado) }
+        },
+        encuesta: {
+          data: { type: 'encuestas', id: String(respuesta.id_formulario) }
+        }
+      }
+    };
+    res.json({ data });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
