@@ -24,3 +24,5 @@ export const dependencies = {
   periodoRepository: periodoRepo,
   programaEducativoRepository: programaRepo
 };
+
+export const egresadoRepository = egresadoRepo;

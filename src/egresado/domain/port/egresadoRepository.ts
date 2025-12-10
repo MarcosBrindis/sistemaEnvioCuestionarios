@@ -6,6 +6,7 @@ export interface EgresadoRepository {
   findAll(): Promise<Egresado[]>;
   existsByMatricula(matricula: string): Promise<boolean>;
   batchCreate(egresados: Omit<Egresado, 'id_egresado'>[]): Promise<number>;
+  findById(id: number): Promise<Egresado | null>;
 }
 
 export interface PeriodoRepository {
