@@ -1,8 +1,37 @@
+
 import { MysqlConnection } from '../../../../core/db/mysl/connection';
 import { BaseEgresadoRepository } from './BaseEgresadoRepository';
 import { Egresado } from '../../../domain/model/egresado';
 
 export class EgresadoRepositoryMySQL extends BaseEgresadoRepository {
+  async updatePerfil(
+    id: number,
+    data: Partial<Pick<Egresado, 'email' | 'fecha_nacimiento' | 'imagen_egresado'>>
+  ): Promise<Egresado> {
+    const campos: string[] = [];
+    const valores: any[] = [];
+    if (data.email !== undefined) {
+      campos.push('email = ?');
+      valores.push(data.email);
+    }
+    if (data.fecha_nacimiento !== undefined) {
+      campos.push('fecha_nacimiento = ?');
+      valores.push(data.fecha_nacimiento);
+    }
+    if (data.imagen_egresado !== undefined) {
+      campos.push('imagen_egresado = ?');
+      valores.push(data.imagen_egresado);
+    }
+    if (campos.length === 0) {
+      throw new Error('No se proporcionaron campos válidos para actualizar');
+    }
+    valores.push(id);
+    const sql = `UPDATE egresado SET ${campos.join(', ')} WHERE id_egresado = ?`;
+    await MysqlConnection.execute(sql, valores);
+    const actualizado = await this.findById(id);
+    if (!actualizado) throw new Error('Egresado no encontrado tras actualizar');
+    return actualizado;
+  }
   async create(data: Omit<Egresado, 'id_egresado'>): Promise<Egresado> {
     const [result]: any = await MysqlConnection.execute(
       `INSERT INTO egresado (
