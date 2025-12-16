@@ -19,6 +19,23 @@ const options: swaggerJsdoc.Options = {
     ],
     components: {
       schemas: {
+        Egresado: {
+          type: "object",
+          properties: {
+            id_egresado: { type: "integer", example: 50 },
+            nombre: { type: "string", example: "Juan" },
+            primer_apellido: { type: "string", example: "Pérez" },
+            segundo_apellido: { type: "string", example: "García" },
+            matricula: { type: "string", example: "A12345678" },
+            curp: { type: "string", example: "CURP123456HDFGRT09" },
+            email: { type: "string", example: "mi_nuevo_correo@gmail.com" },
+            imagen_egresado: { type: "string", example: "https://miservidor.com/uploads/foto_perfil_50.jpg" },
+            fecha_nacimiento: { type: "string", format: "date", example: "1999-05-20" },
+            is_active: { type: "boolean", example: true },
+            id_programa_educativo: { type: "integer", example: 1 },
+            id_periodo: { type: "integer", example: 1 }
+          }
+        },
         RespuestaAttributes: {
           type: "object",
           properties: {
