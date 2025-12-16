@@ -3,6 +3,10 @@ import { Egresado } from '../../../domain/model/egresado';
 
 export abstract class BaseEgresadoRepository implements EgresadoRepository {
   abstract findById(id: number): Promise<Egresado | null>;
+  abstract updatePerfil(
+    id: number,
+    data: Partial<Pick<Egresado, 'email' | 'fecha_nacimiento' | 'imagen_egresado'>>
+  ): Promise<Egresado>;
   create(_data: Omit<Egresado, 'id_egresado'>): Promise<Egresado> {
     return Promise.reject(new Error('Method not implemented'));
   }

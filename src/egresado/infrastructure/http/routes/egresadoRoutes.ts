@@ -3,6 +3,7 @@ import { dependencies } from '../../dependencies';
 import { syncEgresadosController } from '../controller/syncEgresadosController';
 import laborAchievementRoutes from '../../../../laborAchievement/infrastructure/http/router/laborAchievementRoutes';
 import academicAchievementRoutes from '../../../../academicAchievement/infrastructure/http/router/academicAchievementRoutes';
+import { updatePerfilController } from '../controller/updatePerfilController';
 import { requestLogger } from '../../../../core/middleware/requestLogger';
 
 const router = Router();
@@ -10,7 +11,79 @@ router.use(requestLogger);
 
 /**
  * @openapi
- * /api/egresados/sync:
+ * /api/egresado/{id}/perfil:
+ *   patch:
+ *     tags:
+ *       - Egresados
+ *     summary: Actualizar datos de contacto y foto de perfil del egresado
+ *     description: |
+ *       Permite que el egresado actualice su email, fecha de nacimiento e imagen de perfil (URL).
+ *       Solo el propio egresado puede editar su perfil (validación por sesión).
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del egresado a actualizar (debe coincidir con el de la sesión)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               data:
+ *                 type: object
+ *                 properties:
+ *                   type:
+ *                     type: string
+ *                     example: egresados
+ *                   id:
+ *                     type: string
+ *                     example: "50"
+ *                   attributes:
+ *                     type: object
+ *                     properties:
+ *                       email:
+ *                         type: string
+ *                         example: mi_nuevo_correo@gmail.com
+ *                       fecha_nacimiento:
+ *                         type: string
+ *                         format: date
+ *                         example: "1999-05-20"
+ *                       imagen_egresado:
+ *                         type: string
+ *                         example: https://miservidor.com/uploads/foto_perfil_50.jpg
+ *     responses:
+ *       200:
+ *         description: Perfil actualizado correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     type:
+ *                       type: string
+ *                       example: egresados
+ *                     id:
+ *                       type: integer
+ *                       example: 50
+ *                     attributes:
+ *                       $ref: '#/components/schemas/Egresado'
+ *       401:
+ *         description: No autenticado
+ *       403:
+ *         description: No autorizado para editar este perfil
+ */
+router.patch('/:id/perfil', updatePerfilController(dependencies.updateEgresadoPerfil));
+
+/**
+ * @openapi
+ * /api/egresado/sync:
  *   post:
  *     tags:
  *       - Egresados

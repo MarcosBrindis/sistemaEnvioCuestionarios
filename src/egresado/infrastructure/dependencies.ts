@@ -1,6 +1,7 @@
 import { PlatinumAPI } from './external/PlatinumAPI';
 import { SyncEgresadosFromPlatinum } from '../application/usecase/SyncEgresadosFromPlatinum';
 import { EgresadoRepositoryMySQL } from './database/mysql/EgresadoRepositoryMYSQL';
+import { UpdateEgresadoPerfil } from '../application/usecase/UpdateEgresadoPerfil';
 import { PeriodoRepositoryMySQL } from './database/mysql/PeriodoRepositoryMYSQL';
 import { ProgramaEducativoRepositoryMySQL } from './database/mysql/ProgramaEducativoRepositoryMYSQL';
 
@@ -22,7 +23,8 @@ export const dependencies = {
   ),
   egresadoRepository: egresadoRepo,
   periodoRepository: periodoRepo,
-  programaEducativoRepository: programaRepo
+  programaEducativoRepository: programaRepo,
+  updateEgresadoPerfil: new UpdateEgresadoPerfil(egresadoRepo)
 };
 
 export const egresadoRepository = egresadoRepo;
