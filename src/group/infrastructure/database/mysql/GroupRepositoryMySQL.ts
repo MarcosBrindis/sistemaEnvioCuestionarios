@@ -37,4 +37,16 @@ export class GroupRepositoryMySQL implements GroupRepository {
     const [rows]: any = await db.query('SELECT COUNT(*) as count FROM grupo_egresado WHERE nombre = ?', [nombre]);
     return rows[0].count > 0;
   }
+
+  async importarMiembrosPorFiltro(idGrupo: number, idsEgresados: number[]): Promise<{ nuevos_agregados: number; ya_estaban_en_grupo: number; }> {
+    if (!idsEgresados.length) return { nuevos_agregados: 0, ya_estaban_en_grupo: 0 };
+    // Evitar duplicados usando INSERT IGNORE
+    const values = idsEgresados.map(id => `(${idGrupo}, ${id})`).join(',');
+    const sql = `INSERT IGNORE INTO grupo_miembro (id_grupo, id_egresado) VALUES ${values}`;
+    const [result]: any = await db.query(sql);
+    // Calcular cuántos ya estaban
+    const nuevos_agregados = result.affectedRows;
+    const ya_estaban_en_grupo = idsEgresados.length - nuevos_agregados;
+    return { nuevos_agregados, ya_estaban_en_grupo };
+  }
 }

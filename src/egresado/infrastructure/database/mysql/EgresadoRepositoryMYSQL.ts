@@ -1,4 +1,3 @@
-
 import { MysqlConnection } from '../../../../core/db/mysl/connection';
 import { BaseEgresadoRepository } from './BaseEgresadoRepository';
 import { Egresado } from '../../../domain/model/egresado';
@@ -126,5 +125,42 @@ export class EgresadoRepositoryMySQL extends BaseEgresadoRepository {
       [id]
     );
     return rows.length > 0 ? rows[0] : null;
+  }
+
+  async buscarEgresadosAvanzado(filtros: {
+    id_programa_educativo?: number;
+    id_periodo_egreso?: number;
+    cohorte?: number;
+    prefijo_matricula?: string; // Ejemplo: '113' (3 primeros dígitos de matrícula)
+    busqueda?: string;
+  }): Promise<any[]> {
+    let sql = `SELECT e.*, p.cohorte AS cohorte_egreso
+      FROM egresado e
+      LEFT JOIN periodo_graduado p ON e.id_periodo = p.id_periodo
+      WHERE 1=1`;
+    const params: any[] = [];
+    if (filtros.id_programa_educativo) {
+      sql += ' AND e.id_programa_educativo = ?';
+      params.push(filtros.id_programa_educativo);
+    }
+    if (filtros.id_periodo_egreso) {
+      sql += ' AND e.id_periodo = ?';
+      params.push(filtros.id_periodo_egreso);
+    }
+    if (filtros.cohorte) {
+      sql += ' AND p.cohorte = ?';
+      params.push(String(filtros.cohorte));
+    }
+    if (filtros.prefijo_matricula) {
+      sql += ' AND e.matricula LIKE ?';
+      params.push(`${filtros.prefijo_matricula}%`);
+    }
+    if (filtros.busqueda) {
+      sql += ` AND (e.nombre LIKE ? OR e.primer_apellido LIKE ? OR e.segundo_apellido LIKE ? OR e.matricula LIKE ? OR e.email LIKE ?)`;
+      const search = `%${filtros.busqueda}%`;
+      params.push(search, search, search, search, search);
+    }
+    const [rows]: any = await MysqlConnection.execute(sql, params);
+    return rows;
   }
 }

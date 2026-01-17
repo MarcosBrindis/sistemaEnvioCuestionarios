@@ -15,6 +15,7 @@ import egresadoRoutes from './src/egresado/infrastructure/http/routes/egresadoRo
 import respuestaRoutes from './src/respuesta/infrastructure/http/router/respuestaRoutes';
 import groupRoutes from './src/group/infrastructure/http/router/groupRoutes';
 import authRoutes from './src/auth/infrastructure/http/router/authRoutes';
+import importarMiembrosRoutes from './src/importacionMiembros/infrastructure/http/router/importarMiembrosRoutes';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -66,6 +67,7 @@ async function startServer() {
     app.use('/api/egresado', egresadoRoutes)
     app.use('/api/grupo', groupRoutes)
     app.use('/api/auth', authRoutes);
+    app.use('/api', importarMiembrosRoutes);
 
     // Ruta raíz
     app.get('/', (_req, res) => {

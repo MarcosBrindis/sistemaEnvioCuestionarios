@@ -26,6 +26,15 @@ export abstract class BaseEgresadoRepository implements EgresadoRepository {
   batchCreate(_egresados: Omit<Egresado, 'id_egresado'>[]): Promise<number> {
     return Promise.reject(new Error('Method not implemented'));
   }
+
+  buscarEgresadosAvanzado(_filtros: {
+    id_programa_educativo?: number;
+    id_periodo_egreso?: number;
+    cohorte?: number;
+    busqueda?: string;
+  }): Promise<Egresado[]> {
+    return Promise.reject(new Error('Method not implemented'));
+  }
 }
 
 export abstract class BasePeriodoRepository implements PeriodoRepository {
