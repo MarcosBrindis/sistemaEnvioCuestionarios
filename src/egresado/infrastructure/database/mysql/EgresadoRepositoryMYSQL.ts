@@ -127,6 +127,21 @@ export class EgresadoRepositoryMySQL extends BaseEgresadoRepository {
     return rows.length > 0 ? rows[0] : null;
   }
 
+  async updatePeriodoByMatricula(matricula: string, id_periodo: number): Promise<boolean> {
+    const [result]: any = await MysqlConnection.execute(
+      `UPDATE egresado SET id_periodo = ? WHERE matricula = ? AND id_periodo IS NULL`,
+      [id_periodo, matricula]
+    );
+    return (result as any).affectedRows > 0;
+  }
+
+  async findEgresadosSinPeriodo(): Promise<Egresado[]> {
+    const [rows]: any = await MysqlConnection.execute(
+      `SELECT * FROM egresado WHERE id_periodo IS NULL`
+    );
+    return rows;
+  }
+
   async buscarEgresadosAvanzado(filtros: {
     id_programa_educativo?: number;
     id_periodo_egreso?: number;
