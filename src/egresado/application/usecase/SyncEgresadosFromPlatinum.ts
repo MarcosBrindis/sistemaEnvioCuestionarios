@@ -31,6 +31,8 @@ export class SyncEgresadosFromPlatinum {
   ) {}
 
   async execute(params?: any): Promise<SyncResult> {
+    console.log('🚀 Iniciando sincronización de egresados desde Platinum...');
+    
     const result: SyncResult = {
       status: 'completado',
       resumen: {
@@ -45,18 +47,25 @@ export class SyncEgresadosFromPlatinum {
     };
 
     try {
+      console.log('📅 Sincronizando periodos...');
       const periodosSync = await this.syncPeriodos();
       result.resumen.periodos_nuevos = periodosSync;
+      console.log(`✅ Periodos sincronizados: ${periodosSync} nuevos`);
 
+      console.log('🎓 Sincronizando programas educativos...');
       const programasSync = await this.syncProgramasEducativos();
       result.resumen.programas_nuevos = programasSync;
+      console.log(`✅ Programas sincronizados: ${programasSync} nuevos`);
 
+      console.log('📥 Obteniendo egresados de Platinum...');
       const alumnos = await this.platinumAPI.getAlumnos(params);
       result.resumen.egresados_procesados_total = alumnos.length;
+      console.log(`📊 Total de egresados a procesar: ${alumnos.length}`);
 
       const batches = this.chunkArray(alumnos, this.batchSize);
       
       for (let i = 0; i < batches.length; i++) {
+        console.log(`⏳ Procesando lote ${i + 1}/${batches.length}...`);
         const batchResult = await this.processEgresadosBatch(batches[i]);
         
         result.resumen.nuevos_insertados += batchResult.insertados;
@@ -66,6 +75,8 @@ export class SyncEgresadosFromPlatinum {
         if (batchResult.erroresDetalles.length > 0) {
           result.errores?.push(...batchResult.erroresDetalles);
         }
+        
+        console.log(`   ✓ Lote ${i + 1}: ${batchResult.insertados} insertados, ${batchResult.ignorados} existentes`);
       }
 
       if (result.resumen.errores > 0 && result.resumen.nuevos_insertados === 0) {
@@ -74,10 +85,19 @@ export class SyncEgresadosFromPlatinum {
         result.status = 'parcial';
       }
 
+      console.log('🏁 Sincronización completada:');
+      console.log(`   - Periodos nuevos: ${result.resumen.periodos_nuevos}`);
+      console.log(`   - Programas nuevos: ${result.resumen.programas_nuevos}`);
+      console.log(`   - Egresados procesados: ${result.resumen.egresados_procesados_total}`);
+      console.log(`   - Nuevos insertados: ${result.resumen.nuevos_insertados}`);
+      console.log(`   - Existentes ignorados: ${result.resumen.existentes_ignorados}`);
+      console.log(`   - Errores: ${result.resumen.errores}`);
+
       return result;
 
     } catch (error) {
       const err = error as Error;
+      console.error('❌ Error en sincronización:', err.message);
       result.status = 'fallido';
       result.errores?.push(`Error general: ${err.message}`);
       return result;
@@ -90,8 +110,21 @@ export class SyncEgresadosFromPlatinum {
       const periodosExternos = await this.platinumAPI.getPeriodos();
       
       for (const periodoExt of periodosExternos) {
-        const existe = await this.periodoRepo.findByCohorte(periodoExt.Cohorte);
-        if (existe) continue;
+        // Primero intentar buscar por periodo_id_externo
+        let existe = await this.periodoRepo.findByPeriodoIdExterno(periodoExt.periodo_id);
+        
+        // Si no existe por periodo_id_externo, buscar por cohorte
+        if (!existe) {
+          existe = await this.periodoRepo.findByCohorte(periodoExt.Cohorte);
+        }
+        
+        if (existe) {
+          // Si existe pero no tiene periodo_id_externo, actualizarlo
+          if (!existe.periodo_id_externo) {
+            await this.periodoRepo.updatePeriodoIdExterno(periodoExt.Cohorte, periodoExt.periodo_id);
+          }
+          continue;
+        }
 
         const fechas = PeriodoParser.parsePeriodoToDates(periodoExt.label);
         if (!fechas) {
@@ -101,7 +134,8 @@ export class SyncEgresadosFromPlatinum {
         await this.periodoRepo.create({
           fecha_inicio: PeriodoParser.formatDateForDB(fechas.fecha_inicio),
           fecha_fin: PeriodoParser.formatDateForDB(fechas.fecha_fin),
-          cohorte: periodoExt.Cohorte
+          cohorte: periodoExt.Cohorte,
+          periodo_id_externo: periodoExt.periodo_id
         });
         nuevos++;
       }
@@ -163,7 +197,7 @@ export class SyncEgresadosFromPlatinum {
           continue;
         }
 
-        const periodo = await this.periodoRepo.findByCohorte(egresadoExt.UltimoPeriodoID);
+        const periodo = await this.periodoRepo.findByPeriodoIdExterno(egresadoExt.UltimoPeriodoID);
         
         const egresadoLocal: Omit<Egresado, 'id_egresado'> = {
           nombre: egresadoExt.Nombre.trim(),
