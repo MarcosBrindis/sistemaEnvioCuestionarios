@@ -13,6 +13,15 @@ export interface EgresadoRepository {
    * @param data Campos a actualizar (solo email, fecha_nacimiento, imagen_egresado)
    */
   updatePerfil(id: number, data: Partial<Pick<Egresado, 'email' | 'fecha_nacimiento' | 'imagen_egresado'>>): Promise<Egresado>;
+  /**
+   * Búsqueda avanzada de egresados con filtros y texto libre
+   */
+  buscarEgresadosAvanzado(filtros: {
+    id_programa_educativo?: number;
+    id_periodo_egreso?: number;
+    cohorte?: number;
+    busqueda?: string;
+  }): Promise<Egresado[]>;
 }
 
 export interface PeriodoRepository {
