@@ -25,8 +25,10 @@ export interface EgresadoRepository {
 }
 
 export interface PeriodoRepository {
-  create(data: { fecha_inicio: string; fecha_fin: string; cohorte: string }): Promise<any>;
+  create(data: { fecha_inicio: string; fecha_fin: string; cohorte: string; periodo_id_externo?: string }): Promise<any>;
   findByCohorte(cohorte: string): Promise<any | null>;
+  findByPeriodoIdExterno(periodo_id_externo: string): Promise<any | null>;
+  updatePeriodoIdExterno(cohorte: string, periodo_id_externo: string): Promise<void>;
   findAll(): Promise<any[]>;
 }
 

@@ -38,11 +38,19 @@ export abstract class BaseEgresadoRepository implements EgresadoRepository {
 }
 
 export abstract class BasePeriodoRepository implements PeriodoRepository {
-  create(_data: { fecha_inicio: string; fecha_fin: string; cohorte: string }): Promise<any> {
+  create(_data: { fecha_inicio: string; fecha_fin: string; cohorte: string; periodo_id_externo?: string }): Promise<any> {
     return Promise.reject(new Error('Method not implemented'));
   }
   
   findByCohorte(_cohorte: string): Promise<any | null> {
+    return Promise.reject(new Error('Method not implemented'));
+  }
+
+  findByPeriodoIdExterno(_periodo_id_externo: string): Promise<any | null> {
+    return Promise.reject(new Error('Method not implemented'));
+  }
+
+  updatePeriodoIdExterno(_cohorte: string, _periodo_id_externo: string): Promise<void> {
     return Promise.reject(new Error('Method not implemented'));
   }
   
