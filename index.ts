@@ -17,6 +17,7 @@ import groupRoutes from './src/group/infrastructure/http/router/groupRoutes';
 import authRoutes from './src/auth/infrastructure/http/router/authRoutes';
 import importarMiembrosRoutes from './src/importacionMiembros/infrastructure/http/router/importarMiembrosRoutes';
 import suscripcionRoutes from './src/egresado-suscripcion/infrastructure/http/router/suscripcionRoutes';
+import Survey from './src/surveys/infrastructure/http/router/surveyRouter';
 
 import tipoCorreoRoutes from './src/typesMail/infrastructure/http/router/tipoCorreoRoutes';
 import emailTemplateRouter from './src/emailTemplates/infrastructure/http/router/emailTemplateRouter';
@@ -76,6 +77,8 @@ async function startServer() {
 
     app.use('/api', tipoCorreoRoutes);
     app.use('/api/templates-correo', emailTemplateRouter);
+
+    app.use('/api/encuestas', Survey);
 
     // Ruta raíz
     app.get('/', (_req, res) => {
