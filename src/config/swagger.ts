@@ -19,6 +19,38 @@ const options: swaggerJsdoc.Options = {
     ],
     components: {
       schemas: {
+        TipoCorreoAttributes: {
+          type: "object",
+          properties: {
+            tipo: { type: "string", example: "Encuesta de Satisfacción" }
+          }
+        },
+        TipoCorreoRequest: {
+          type: "object",
+          required: ["data"],
+          properties: {
+            data: {
+              type: "object",
+              properties: {
+                type: { type: "string", example: "tipos-correo" },
+                attributes: { $ref: "#/components/schemas/TipoCorreoAttributes" }
+              }
+            }
+          }
+        },
+        TipoCorreoResource: {
+          type: "object",
+          properties: {
+            data: {
+              type: "object",
+              properties: {
+                type: { type: "string", example: "tipos-correo" },
+                id: { type: "string", example: "1" },
+                attributes: { $ref: "#/components/schemas/TipoCorreoAttributes" }
+              }
+            }
+          }
+        },
         Egresado: {
           type: "object",
           properties: {
@@ -385,6 +417,57 @@ const options: swaggerJsdoc.Options = {
               },
             },
           },
+        },
+        EmailTemplate: {
+          type: "object",
+          properties: {
+            id: { type: "integer", example: 1 },
+            subject: { type: "string", example: "Welcome Email" },
+            body: { type: "string", example: "Hello, welcome!" },
+            typeId: { type: "integer", example: 2 },
+            createdAt: { type: "string", format: "date-time", example: "2024-01-01T12:00:00Z" },
+            updatedAt: { type: "string", format: "date-time", example: "2024-01-02T12:00:00Z" }
+          }
+        },
+        EmailTemplateInput: {
+          type: "object",
+          required: ["data"],
+          properties: {
+            data: {
+              type: "object",
+              required: ["type", "attributes", "relationships"],
+              properties: {
+                type: { type: "string", example: "templates-correo" },
+                attributes: {
+                  type: "object",
+                  required: ["asunto", "cuerpo"],
+                  properties: {
+                    asunto: { type: "string", example: "Encuesta de Seguimiento - Importante" },
+                    cuerpo: { type: "string", example: "<html><body><p>Hola {nombre}...</p></body></html>" }
+                  }
+                },
+                relationships: {
+                  type: "object",
+                  required: ["tipo_correo"],
+                  properties: {
+                    tipo_correo: {
+                      type: "object",
+                      properties: {
+                        data: {
+                          type: "object",
+                          required: ["type", "id"],
+                          properties: {
+                            type: { type: "string", example: "tipo_correo" },
+                            id: { type: "string", example: "1" }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
         },
       },
     },
