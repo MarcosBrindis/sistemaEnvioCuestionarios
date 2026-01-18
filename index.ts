@@ -16,6 +16,7 @@ import respuestaRoutes from './src/respuesta/infrastructure/http/router/respuest
 import groupRoutes from './src/group/infrastructure/http/router/groupRoutes';
 import authRoutes from './src/auth/infrastructure/http/router/authRoutes';
 import importarMiembrosRoutes from './src/importacionMiembros/infrastructure/http/router/importarMiembrosRoutes';
+import suscripcionRoutes from './src/egresado-suscripcion/infrastructure/http/router/suscripcionRoutes';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -68,6 +69,7 @@ async function startServer() {
     app.use('/api/grupo', groupRoutes)
     app.use('/api/auth', authRoutes);
     app.use('/api', importarMiembrosRoutes);
+    app.use('/api', suscripcionRoutes);
 
     // Ruta raíz
     app.get('/', (_req, res) => {
