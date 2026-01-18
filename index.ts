@@ -18,6 +18,9 @@ import authRoutes from './src/auth/infrastructure/http/router/authRoutes';
 import importarMiembrosRoutes from './src/importacionMiembros/infrastructure/http/router/importarMiembrosRoutes';
 import suscripcionRoutes from './src/egresado-suscripcion/infrastructure/http/router/suscripcionRoutes';
 
+import tipoCorreoRoutes from './src/typesMail/infrastructure/http/router/tipoCorreoRoutes';
+import emailTemplateRouter from './src/emailTemplates/infrastructure/http/router/emailTemplateRouter';
+
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -29,8 +32,8 @@ async function startServer() {
         origin: true,
         credentials: true
     }));
-    app.use(express.json());
-    app.use(express.urlencoded({ extended: true }));
+    app.use(express.json({ limit: '5mb' }));
+    app.use(express.urlencoded({ extended: true, limit: '5mb' }));
     app.use(requestLogger);
 
     const requiredSessionVars = [
@@ -70,6 +73,9 @@ async function startServer() {
     app.use('/api/auth', authRoutes);
     app.use('/api', importarMiembrosRoutes);
     app.use('/api', suscripcionRoutes);
+
+    app.use('/api', tipoCorreoRoutes);
+    app.use('/api/templates-correo', emailTemplateRouter);
 
     // Ruta raíz
     app.get('/', (_req, res) => {
