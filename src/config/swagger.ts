@@ -19,6 +19,127 @@ const options: swaggerJsdoc.Options = {
     ],
     components: {
       schemas: {
+                SurveyInput: {
+                  type: "object",
+                  required: ["data"],
+                  properties: {
+                    data: {
+                      type: "object",
+                      required: ["type", "attributes", "relationships"],
+                      properties: {
+                        type: { type: "string", example: "encuestas" },
+                        attributes: {
+                          type: "object",
+                          required: ["nombre", "descripcion", "is_active"],
+                          properties: {
+                            nombre: { type: "string", example: "Encuesta Clima 2025" },
+                            descripcion: { type: "string", example: "Encuesta para medir el clima laboral" },
+                            is_active: { type: "boolean", example: true }
+                          }
+                        },
+                        relationships: {
+                          type: "object",
+                          required: ["formulario", "template-correo"],
+                          properties: {
+                            formulario: {
+                              type: "object",
+                              properties: {
+                                data: {
+                                  type: "object",
+                                  required: ["type", "id"],
+                                  properties: {
+                                    type: { type: "string", example: "formularios" },
+                                    id: { type: "string", example: "10" }
+                                  }
+                                }
+                              }
+                            },
+                            "template-correo": {
+                              type: "object",
+                              properties: {
+                                data: {
+                                  type: "object",
+                                  required: ["type", "id"],
+                                  properties: {
+                                    type: { type: "string", example: "templates-correo" },
+                                    id: { type: "string", example: "5" }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                SurveyResource: {
+                  type: "object",
+                  properties: {
+                    data: {
+                      type: "object",
+                      properties: {
+                        type: { type: "string", example: "encuestas" },
+                        id: { type: "string", example: "1" },
+                        attributes: {
+                          type: "object",
+                          properties: {
+                            nombre: { type: "string", example: "Encuesta Clima 2025" },
+                            descripcion: { type: "string", example: "Encuesta para medir el clima laboral" },
+                            is_active: { type: "boolean", example: true }
+                          }
+                        },
+                        relationships: {
+                          type: "object",
+                          properties: {
+                            formulario: {
+                              type: "object",
+                              properties: {
+                                data: {
+                                  type: "object",
+                                  properties: {
+                                    type: { type: "string", example: "formularios" },
+                                    id: { type: "string", example: "10" }
+                                  }
+                                }
+                              }
+                            },
+                            "template-correo": {
+                              type: "object",
+                              properties: {
+                                data: {
+                                  type: "object",
+                                  properties: {
+                                    type: { type: "string", example: "templates-correo" },
+                                    id: { type: "string", example: "5" }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                SurveyListResponse: {
+                  type: "object",
+                  properties: {
+                    meta: {
+                      type: "object",
+                      properties: {
+                        total_records: { type: "integer", example: 50 },
+                        total_pages: { type: "integer", example: 5 },
+                        current_page: { type: "integer", example: 1 },
+                        limit: { type: "integer", example: 10 }
+                      }
+                    },
+                    data: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/SurveyResource" }
+                    }
+                  }
+                },
         TipoCorreoAttributes: {
           type: "object",
           properties: {
