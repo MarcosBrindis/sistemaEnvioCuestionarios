@@ -27,6 +27,7 @@ import mailingAccountRouter from './src/mailing/infrastructure/http/router/accou
 import mailingClientRouter from './src/mailing/client/infrastructure/http/router/client.router';
 import mailingSenderRouter from './src/mailing/sender/infrastructure/http/router/sender.router';
 import distributionRouter from './src/distribution/infrastructure/http/router/distribution.router';
+import analyticsRouter from './src/analytics/infrastructure/http/router/analytics.router';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -91,6 +92,7 @@ async function startServer() {
     app.use('/mailing', mailingClientRouter);
     app.use('/mailing', mailingSenderRouter);
     app.use('/distribution', distributionRouter);
+    app.use('/analytics', analyticsRouter);
 
     // Ruta raíz
     app.get('/', (_req, res) => {
