@@ -602,6 +602,7 @@ const options: swaggerJsdoc.Options = {
     `${path.join(__dirname, "../mailing/client/infrastructure/http/swagger/client.swagger.ts")}`,
     `${path.join(__dirname, "../mailing/sender/infrastructure/http/swagger/sender.swagger.ts")}`,
     `${path.join(__dirname, "../distribution/infrastructure/http/swagger/distribution.swagger.ts")}`,
+    `${path.join(__dirname, "../analytics/infrastructure/http/swagger/analytics.swagger.ts")}`,
   ],
 };
 
