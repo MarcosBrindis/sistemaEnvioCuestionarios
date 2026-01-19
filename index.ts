@@ -25,6 +25,7 @@ import emailTemplateRouter from './src/emailTemplates/infrastructure/http/router
 
 import mailingAccountRouter from './src/mailing/infrastructure/http/router/account.router';
 import mailingClientRouter from './src/mailing/client/infrastructure/http/router/client.router';
+import mailingSenderRouter from './src/mailing/sender/infrastructure/http/router/sender.router';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -87,6 +88,7 @@ async function startServer() {
 
     app.use('/mailing', mailingAccountRouter);
     app.use('/mailing', mailingClientRouter);
+    app.use('/mailing', mailingSenderRouter);
 
     // Ruta raíz
     app.get('/', (_req, res) => {
