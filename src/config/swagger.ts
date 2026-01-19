@@ -600,6 +600,7 @@ const options: swaggerJsdoc.Options = {
     `${path.join(__dirname, "../surveyAssignment/infrastructure/http/swagger/assignment.swagger.ts")}`,
     `${path.join(__dirname, "../mailing/infrastructure/http/swagger/accountswagger.ts")}`,
     `${path.join(__dirname, "../mailing/client/infrastructure/http/swagger/client.swagger.ts")}`,
+    `${path.join(__dirname, "../mailing/sender/infrastructure/http/swagger/sender.swagger.ts")}`,
   ],
 };
 
