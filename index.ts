@@ -22,7 +22,9 @@ import assignmentRouter from './src/surveyAssignment/infrastructure/http/router/
 
 import tipoCorreoRoutes from './src/typesMail/infrastructure/http/router/tipoCorreoRoutes';
 import emailTemplateRouter from './src/emailTemplates/infrastructure/http/router/emailTemplateRouter';
+
 import mailingAccountRouter from './src/mailing/infrastructure/http/router/account.router';
+import mailingClientRouter from './src/mailing/client/infrastructure/http/router/client.router';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -82,7 +84,9 @@ async function startServer() {
 
     app.use('/api/encuestas', Survey);   
     app.use('/api/encuestas/:id', assignmentRouter);
+
     app.use('/mailing', mailingAccountRouter);
+    app.use('/mailing', mailingClientRouter);
 
     // Ruta raíz
     app.get('/', (_req, res) => {

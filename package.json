@@ -20,8 +20,10 @@
   },
   "homepage": "https://github.com/MarcosBrindis/sistemaEnvioCuestionarios#readme",
   "dependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/dotenv": "^6.1.1",
     "axios": "^1.13.2",
+    "bcrypt": "^6.0.0",
     "connect-redis": "^9.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
