@@ -2,19 +2,25 @@ import { ParticipantRepository, ParticipantFilter } from '../../domain/port/Part
 import { TemplateRepository } from '../../domain/port/TemplateRepository';
 import { MailingServiceClient } from '../../domain/port/MailingServiceClient';
 import { TemplateEngineService } from '../service/TemplateEngineService';
+import { AssignSurveyGroup } from '../../../surveyAssignment/application/usecase/AssignSurveyGroup';
 
 export class DispatchSurveyRemindersUseCase {
   constructor(
     private participantRepo: ParticipantRepository,
     private templateRepo: TemplateRepository,
     private mailingClient: MailingServiceClient,
-    private templateEngine: TemplateEngineService
+    private templateEngine: TemplateEngineService,
+    private assignSurveyGroup?: AssignSurveyGroup
   ) {}
 
-  async execute(payload: { id_encuesta: number; id_template: number; filtro: ParticipantFilter }) {
-    const { id_encuesta, id_template, filtro } = payload;
+  async execute(payload: { id_encuesta: number; id_template: number; filtro: ParticipantFilter; id_group?: number }) {
+    const { id_encuesta, id_template, filtro, id_group } = payload;
     const template = await this.templateRepo.findById(id_template);
     if (!template) throw new Error('Template no encontrado.');
+
+    if (typeof id_group === 'number') {
+      await this.assignSurveyGroup?.execute(id_encuesta, id_group);
+    }
 
     const participants = await this.participantRepo.findBySurvey(id_encuesta, filtro);
     const batchSize = Number(process.env.DISTRIBUTION_BATCH_SIZE || 50);
