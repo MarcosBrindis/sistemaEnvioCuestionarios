@@ -14,16 +14,22 @@ export const createEmailTemplateController = (createEmailTemplate: CreateEmailTe
       });
       return;
     }
-    const { asunto, cuerpo } = req.body.data.attributes;
+    const { asunto, cuerpo, layout_html } = req.body.data.attributes;
     const typeId = Number(req.body.data.relationships.tipo_correo.data.id);
-    const template = await createEmailTemplate.execute({ subject: asunto, body: cuerpo, typeId });
+    const template = await createEmailTemplate.execute({
+      subject: asunto,
+      body: cuerpo,
+      layoutHtml: layout_html ?? null,
+      typeId
+    });
     res.status(201).json({
       data: {
         type: 'templates-correo',
         id: template.id.toString(),
         attributes: {
           subject: template.subject,
-          body: template.body
+          body: template.body,
+          layout_html: template.layoutHtml ?? null
         },
         relationships: {
           tipo_correo: { data: { type: 'tipo_correo', id: template.typeId } }
