@@ -5,6 +5,7 @@ import { EgresadoRepositoryMySQL } from './database/mysql/EgresadoRepositoryMYSQ
 import { UpdateEgresadoPerfil } from '../application/usecase/UpdateEgresadoPerfil';
 import { PeriodoRepositoryMySQL } from './database/mysql/PeriodoRepositoryMYSQL';
 import { ProgramaEducativoRepositoryMySQL } from './database/mysql/ProgramaEducativoRepositoryMYSQL';
+import { GetProgramasEducativos } from '../application/usecase/GetProgramasEducativos';
 
 const egresadoRepo = new EgresadoRepositoryMySQL();
 const periodoRepo = new PeriodoRepositoryMySQL();
@@ -28,6 +29,7 @@ export const dependencies = {
     periodoRepo,
     BATCH_SIZE
   ),
+  getProgramasEducativos: new GetProgramasEducativos(programaRepo),
   egresadoRepository: egresadoRepo,
   periodoRepository: periodoRepo,
   programaEducativoRepository: programaRepo,
