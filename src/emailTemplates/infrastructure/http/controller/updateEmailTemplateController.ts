@@ -15,9 +15,14 @@ export const updateEmailTemplateController = (updateEmailTemplate: UpdateEmailTe
       return;
     }
     const id = Number(req.params.id);
-    const { asunto, cuerpo } = req.body.data.attributes;
+    const { asunto, cuerpo, layout_html } = req.body.data.attributes;
     const typeId = Number(req.body.data.relationships.tipo_correo.data.id);
-    const template = await updateEmailTemplate.execute(id, { subject: asunto, body: cuerpo, typeId });
+    const template = await updateEmailTemplate.execute(id, {
+      subject: asunto,
+      body: cuerpo,
+      layoutHtml: layout_html ?? null,
+      typeId
+    });
     if (!template) {
       res.status(404).json({
         error: {
@@ -34,7 +39,8 @@ export const updateEmailTemplateController = (updateEmailTemplate: UpdateEmailTe
         id: template.id.toString(),
         attributes: {
           subject: template.subject,
-          body: template.body
+          body: template.body,
+          layout_html: template.layoutHtml ?? null
         },
         relationships: {
           tipo_correo: { data: { type: 'tipo_correo', id: template.typeId } }

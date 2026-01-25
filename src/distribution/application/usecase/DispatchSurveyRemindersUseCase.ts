@@ -35,7 +35,11 @@ export class DispatchSurveyRemindersUseCase {
       await Promise.all(
         chunk.map(async (participant) => {
           try {
-            const html = this.templateEngine.render(template.cuerpo, participant);
+            const baseBody = template.cuerpo || '';
+            const assembledHtml = template.layout_html
+              ? template.layout_html.replace('{{DYNAMIC_CONTENT}}', baseBody)
+              : baseBody;
+            const html = this.templateEngine.render(assembledHtml, participant);
             const subject = this.templateEngine.render(template.asunto, participant);
             await this.mailingClient.sendEmail({
               to: participant.email,
