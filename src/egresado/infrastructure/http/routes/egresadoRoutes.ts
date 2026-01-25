@@ -6,6 +6,7 @@ import laborAchievementRoutes from '../../../../laborAchievement/infrastructure/
 import academicAchievementRoutes from '../../../../academicAchievement/infrastructure/http/router/academicAchievementRoutes';
 import { updatePerfilController } from '../controller/updatePerfilController';
 import { requestLogger } from '../../../../core/middleware/requestLogger';
+import { getProgramasEducativosController } from '../controller/getProgramasEducativosController';
 
 const router = Router();
 router.use(requestLogger);
@@ -81,6 +82,36 @@ router.use(requestLogger);
  *         description: No autorizado para editar este perfil
  */
 router.patch('/:id/perfil', updatePerfilController(dependencies.updateEgresadoPerfil));
+
+/**
+ * @openapi
+ * /api/egresado/programas-educativos:
+ *   get:
+ *     tags:
+ *       - Egresados
+ *     summary: Listar programas educativos
+ *     description: Devuelve el catálogo de programas educativos para poblar selects en el frontend.
+ *     responses:
+ *       200:
+ *         description: Lista de programas educativos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id_programa_educativo:
+ *                         type: integer
+ *                         example: 30001
+ *                       nombre:
+ *                         type: string
+ *                         example: Ingeniería en Software
+ */
+router.get('/programas-educativos', getProgramasEducativosController(dependencies.getProgramasEducativos));
 
 /**
  * @openapi

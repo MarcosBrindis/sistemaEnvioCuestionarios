@@ -149,9 +149,10 @@ export class EgresadoRepositoryMySQL extends BaseEgresadoRepository {
     prefijo_matricula?: string; // Ejemplo: '113' (3 primeros dígitos de matrícula)
     busqueda?: string;
   }): Promise<any[]> {
-    let sql = `SELECT e.*, p.cohorte AS cohorte_egreso
+    let sql = `SELECT e.*, p.cohorte AS cohorte_egreso, pe.nombre AS programa_educativo
       FROM egresado e
       LEFT JOIN periodo_graduado p ON e.id_periodo = p.id_periodo
+      LEFT JOIN programa_educativo pe ON e.id_programa_educativo = pe.id_programa_educativo
       WHERE 1=1`;
     const params: any[] = [];
     if (filtros.id_programa_educativo) {
@@ -171,11 +172,14 @@ export class EgresadoRepositoryMySQL extends BaseEgresadoRepository {
       params.push(`${filtros.prefijo_matricula}%`);
     }
     if (filtros.busqueda) {
-      sql += ` AND (e.nombre LIKE ? OR e.primer_apellido LIKE ? OR e.segundo_apellido LIKE ? OR e.matricula LIKE ? OR e.email LIKE ?)`;
+      sql += ` AND (e.nombre LIKE ? OR e.primer_apellido LIKE ? OR e.segundo_apellido LIKE ? OR e.matricula LIKE ? OR e.email LIKE ? OR pe.nombre LIKE ?)`;
       const search = `%${filtros.busqueda}%`;
-      params.push(search, search, search, search, search);
+      params.push(search, search, search, search, search, search);
     }
     const [rows]: any = await MysqlConnection.execute(sql, params);
-    return rows;
+    return rows.map((row: any) => ({
+      ...row,
+      programa_educativo: row.programa_educativo ?? row.nombre_programa_educativo ?? null
+    }));
   }
 }

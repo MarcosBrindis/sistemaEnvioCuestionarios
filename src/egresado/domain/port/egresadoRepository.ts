@@ -20,6 +20,7 @@ export interface EgresadoRepository {
     id_programa_educativo?: number;
     id_periodo_egreso?: number;
     cohorte?: number;
+    prefijo_matricula?: string;
     busqueda?: string;
   }): Promise<Egresado[]>;
 }

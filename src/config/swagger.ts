@@ -186,6 +186,7 @@ const options: swaggerJsdoc.Options = {
             fecha_nacimiento: { type: "string", format: "date", example: "1999-05-20" },
             is_active: { type: "boolean", example: true },
             id_programa_educativo: { type: "integer", example: 1 },
+            programa_educativo: { type: "string", example: "Ingeniería en Software" },
             id_periodo: { type: "integer", example: 1 }
           }
         },
