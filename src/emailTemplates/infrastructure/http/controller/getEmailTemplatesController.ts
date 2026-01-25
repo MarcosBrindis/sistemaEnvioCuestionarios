@@ -11,7 +11,8 @@ export const getEmailTemplatesController = (getEmailTemplates: GetEmailTemplates
         id: t.id.toString(),
         attributes: {
           subject: t.subject,
-          body: t.body
+          body: t.body,
+          layout_html: t.layoutHtml ?? null
         },
         relationships: {
           tipo_correo: { data: { type: 'tipo_correo', id: t.typeId } }

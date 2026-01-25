@@ -543,8 +543,9 @@ const options: swaggerJsdoc.Options = {
           type: "object",
           properties: {
             id: { type: "integer", example: 1 },
-            subject: { type: "string", example: "Welcome Email" },
-            body: { type: "string", example: "Hello, welcome!" },
+            subject: { type: "string", example: "Bienvenida a la Plataforma", description: "Asunto del correo." },
+            body: { type: "string", example: "<p>Hola {{nombre_completo}}...</p>", description: "Contenido editable. Se insertará dentro del layout usando {{DYNAMIC_CONTENT}}." },
+            layout_html: { type: "string", example: "<html><body><div class='content'>{{DYNAMIC_CONTENT}}</div><a href='{{link_encuesta}}'>Ir a la encuesta</a></body></html>", description: "Marco inmutable. Debe incluir {{DYNAMIC_CONTENT}} para inyectar el body." },
             typeId: { type: "integer", example: 2 },
             createdAt: { type: "string", format: "date-time", example: "2024-01-01T12:00:00Z" },
             updatedAt: { type: "string", format: "date-time", example: "2024-01-02T12:00:00Z" }
@@ -563,8 +564,13 @@ const options: swaggerJsdoc.Options = {
                   type: "object",
                   required: ["asunto", "cuerpo"],
                   properties: {
-                    asunto: { type: "string", example: "Encuesta de Seguimiento - Importante" },
-                    cuerpo: { type: "string", example: "<html><body><p>Hola {nombre}...</p></body></html>" }
+                    asunto: { type: "string", example: "Encuesta de Seguimiento 2026", description: "Asunto del correo." },
+                    cuerpo: { type: "string", example: "<h1>Estimado {{nombre_completo}}</h1><p>Gracias por ayudarnos.</p><p>Tu opinión es muy importante.</p>", description: "Contenido editable. Solo esto se edita en el front." },
+                    layout_html: {
+                      type: "string",
+                      description: "Marco inmutable. Debe incluir {{DYNAMIC_CONTENT}}. Si se omite, se usa el cuerpo tal cual.",
+                      example: "<html><body style='background:#f5f5f5;padding:20px;'><div style='max-width:600px;margin:auto;background:#fff;padding:24px;border-radius:8px;'><img src='https://tu-dominio/logo.png' alt='Logo' style='height:40px;'/><div style='margin-top:16px;'>{{DYNAMIC_CONTENT}}</div><div style='margin-top:24px;text-align:center;'><a href='{{link_encuesta}}' style='background:#1d4ed8;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none;'>Ir a la encuesta</a></div><p style='font-size:12px;color:#999;margin-top:24px;'>Correo automático, no responder.</p></div></body></html>"
+                    }
                   }
                 },
                 relationships: {
