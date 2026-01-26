@@ -2,9 +2,10 @@ import { Router } from 'express';
 import { createSurveyController } from '../controller/createSurveyController';
 import { getSurveysController } from '../controller/getSurveysController';
 import { getSurveyByIdController } from '../controller/getSurveyByIdController';
+import { getPublicSurveyByUuidController } from '../controller/getPublicSurveyByUuidController';
 import { updateSurveyController } from '../controller/updateSurveyController';
 import { deleteSurveyController } from '../controller/deleteSurveyController';
-import { createSurveyUseCase, getSurveysUseCase, getSurveyByIdUseCase, updateSurveyUseCase, deleteSurveyUseCase } from '../../dependencies';
+import { createSurveyUseCase, getSurveysUseCase, getSurveyByIdUseCase, updateSurveyUseCase, deleteSurveyUseCase, getPublicSurveyByUuidUseCase } from '../../dependencies';
 
 const router = Router();
 
@@ -68,6 +69,30 @@ router.post('/', createSurveyController(createSurveyUseCase));
  *               $ref: '#/components/schemas/SurveyListResponse'
  */
 router.get('/', getSurveysController(getSurveysUseCase));
+
+/**
+ * @swagger
+ * /api/encuestas/publico/{uuid}:
+ *   get:
+ *     summary: Obtener encuesta pública por UUID
+ *     tags: [Surveys]
+ *     description: Devuelve la encuesta, formulario, preguntas, opciones y tipo de pregunta para el encuestado.
+ *     parameters:
+ *       - in: path
+ *         name: uuid
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: UUID del encuestado (encuesta_egresados)
+ *     responses:
+ *       200:
+ *         description: Datos completos para contestar la encuesta
+ *       403:
+ *         description: Acceso revocado
+ *       404:
+ *         description: No encontrado
+ */
+router.get('/publico/:uuid', getPublicSurveyByUuidController(getPublicSurveyByUuidUseCase));
 
 /**
  * @swagger
