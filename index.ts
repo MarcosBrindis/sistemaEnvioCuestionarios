@@ -11,8 +11,10 @@ import typeQuestionRoutes from './src/typeQuestion/infrastructure/http/router/ty
 import questionRoutes from './src/question/infrastructure/http/router/questionRoutes';
 import opcionPreguntaRoutes from './src/optionQuestion/infrastructure/http/router/opcionPreguntaRoutes';
 import formRoutes from './src/form/infrastructure/http/router/formRoutes';
-import egresadoRoutes from './src/egresado/infrastructure/http/routes/egresadoRoutes'
+import egresadoRoutes from './src/egresado/infrastructure/http/routes/egresadoRoutes';
+import laborAchievementRoutes from './src/laborAchievement/infrastructure/http/router/laborAchievementRoutes';
 import respuestaRoutes from './src/respuesta/infrastructure/http/router/respuestaRoutes';
+import academicAchievementRoutes from './src/academicAchievement/infrastructure/http/router/academicAchievementRoutes';
 import groupRoutes from './src/group/infrastructure/http/router/groupRoutes';
 import authRoutes from './src/auth/infrastructure/http/router/authRoutes';
 import importarMiembrosRoutes from './src/importacionMiembros/infrastructure/http/router/importarMiembrosRoutes';
@@ -28,6 +30,7 @@ import mailingClientRouter from './src/mailing/client/infrastructure/http/router
 import mailingSenderRouter from './src/mailing/sender/infrastructure/http/router/sender.router';
 import distributionRouter from './src/distribution/infrastructure/http/router/distribution.router';
 import analyticsRouter from './src/analytics/infrastructure/http/router/analytics.router';
+
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -76,6 +79,10 @@ async function startServer() {
     app.use('/api/opcion-pregunta', opcionPreguntaRoutes);
     app.use('/api/formulario', formRoutes);
     app.use('/api/respuesta', respuestaRoutes);
+
+    app.use('/api/egresado/logros-laborales', laborAchievementRoutes);
+    app.use('/api/egresado/logros-academicos', academicAchievementRoutes);
+
     app.use('/api/egresado', egresadoRoutes)
     app.use('/api/grupo', groupRoutes)
     app.use('/api/auth', authRoutes);
@@ -93,6 +100,7 @@ async function startServer() {
     app.use('/mailing', mailingSenderRouter);
     app.use('/distribution', distributionRouter);
     app.use('/analytics', analyticsRouter);
+
 
     // Ruta raíz
     app.get('/', (_req, res) => {
