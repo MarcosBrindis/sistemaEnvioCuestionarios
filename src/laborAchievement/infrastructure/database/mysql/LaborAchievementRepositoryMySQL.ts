@@ -27,6 +27,14 @@ export class LaborAchievementRepositoryMySQL implements LaborAchievementReposito
     return rows;
   }
 
+  async findAll(): Promise<LaborAchievement[]> {
+    const [rows]: any = await MysqlConnection.execute(
+      `SELECT l.id_logro_laboral as id_labor_achievement, l.empresa as company, l.puesto as position, l.fecha as date
+       FROM logro_laboral l`
+    );
+    return rows;
+  }
+
   async findById(idEgresado: number, idAchievement: number): Promise<LaborAchievement | null> {
     const [rows]: any = await MysqlConnection.execute(
       `SELECT l.id_logro_laboral as id_labor_achievement, l.empresa as company, l.puesto as position, l.fecha as date
