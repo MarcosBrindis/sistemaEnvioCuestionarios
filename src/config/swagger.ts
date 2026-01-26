@@ -19,6 +19,177 @@ const options: swaggerJsdoc.Options = {
     ],
     components: {
       schemas: {
+                SurveyInput: {
+                  type: "object",
+                  required: ["data"],
+                  properties: {
+                    data: {
+                      type: "object",
+                      required: ["type", "attributes", "relationships"],
+                      properties: {
+                        type: { type: "string", example: "encuestas" },
+                        attributes: {
+                          type: "object",
+                          required: ["nombre", "descripcion", "is_active"],
+                          properties: {
+                            nombre: { type: "string", example: "Encuesta Clima 2025" },
+                            descripcion: { type: "string", example: "Encuesta para medir el clima laboral" },
+                            is_active: { type: "boolean", example: true }
+                          }
+                        },
+                        relationships: {
+                          type: "object",
+                          required: ["formulario", "template-correo"],
+                          properties: {
+                            formulario: {
+                              type: "object",
+                              properties: {
+                                data: {
+                                  type: "object",
+                                  required: ["type", "id"],
+                                  properties: {
+                                    type: { type: "string", example: "formularios" },
+                                    id: { type: "string", example: "10" }
+                                  }
+                                }
+                              }
+                            },
+                            "template-correo": {
+                              type: "object",
+                              properties: {
+                                data: {
+                                  type: "object",
+                                  required: ["type", "id"],
+                                  properties: {
+                                    type: { type: "string", example: "templates-correo" },
+                                    id: { type: "string", example: "5" }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                SurveyResource: {
+                  type: "object",
+                  properties: {
+                    data: {
+                      type: "object",
+                      properties: {
+                        type: { type: "string", example: "encuestas" },
+                        id: { type: "string", example: "1" },
+                        attributes: {
+                          type: "object",
+                          properties: {
+                            nombre: { type: "string", example: "Encuesta Clima 2025" },
+                            descripcion: { type: "string", example: "Encuesta para medir el clima laboral" },
+                            is_active: { type: "boolean", example: true }
+                          }
+                        },
+                        relationships: {
+                          type: "object",
+                          properties: {
+                            formulario: {
+                              type: "object",
+                              properties: {
+                                data: {
+                                  type: "object",
+                                  properties: {
+                                    type: { type: "string", example: "formularios" },
+                                    id: { type: "string", example: "10" }
+                                  }
+                                }
+                              }
+                            },
+                            "template-correo": {
+                              type: "object",
+                              properties: {
+                                data: {
+                                  type: "object",
+                                  properties: {
+                                    type: { type: "string", example: "templates-correo" },
+                                    id: { type: "string", example: "5" }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                SurveyListResponse: {
+                  type: "object",
+                  properties: {
+                    meta: {
+                      type: "object",
+                      properties: {
+                        total_records: { type: "integer", example: 50 },
+                        total_pages: { type: "integer", example: 5 },
+                        current_page: { type: "integer", example: 1 },
+                        limit: { type: "integer", example: 10 }
+                      }
+                    },
+                    data: {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/SurveyResource" }
+                    }
+                  }
+                },
+        TipoCorreoAttributes: {
+          type: "object",
+          properties: {
+            tipo: { type: "string", example: "Encuesta de Satisfacción" }
+          }
+        },
+        TipoCorreoRequest: {
+          type: "object",
+          required: ["data"],
+          properties: {
+            data: {
+              type: "object",
+              properties: {
+                type: { type: "string", example: "tipos-correo" },
+                attributes: { $ref: "#/components/schemas/TipoCorreoAttributes" }
+              }
+            }
+          }
+        },
+        TipoCorreoResource: {
+          type: "object",
+          properties: {
+            data: {
+              type: "object",
+              properties: {
+                type: { type: "string", example: "tipos-correo" },
+                id: { type: "string", example: "1" },
+                attributes: { $ref: "#/components/schemas/TipoCorreoAttributes" }
+              }
+            }
+          }
+        },
+        Egresado: {
+          type: "object",
+          properties: {
+            id_egresado: { type: "integer", example: 50 },
+            nombre: { type: "string", example: "Juan" },
+            primer_apellido: { type: "string", example: "Pérez" },
+            segundo_apellido: { type: "string", example: "García" },
+            matricula: { type: "string", example: "A12345678" },
+            curp: { type: "string", example: "CURP123456HDFGRT09" },
+            email: { type: "string", example: "mi_nuevo_correo@gmail.com" },
+            imagen_egresado: { type: "string", example: "https://miservidor.com/uploads/foto_perfil_50.jpg" },
+            fecha_nacimiento: { type: "string", format: "date", example: "1999-05-20" },
+            is_active: { type: "boolean", example: true },
+            id_programa_educativo: { type: "integer", example: 1 },
+            programa_educativo: { type: "string", example: "Ingeniería en Software" },
+            id_periodo: { type: "integer", example: 1 }
+          }
+        },
         RespuestaAttributes: {
           type: "object",
           properties: {
@@ -369,11 +540,76 @@ const options: swaggerJsdoc.Options = {
             },
           },
         },
+        EmailTemplate: {
+          type: "object",
+          properties: {
+            id: { type: "integer", example: 1 },
+            subject: { type: "string", example: "Bienvenida a la Plataforma", description: "Asunto del correo." },
+            body: { type: "string", example: "<p>Hola {{nombre_completo}}...</p>", description: "Contenido editable. Se insertará dentro del layout usando {{DYNAMIC_CONTENT}}." },
+            layout_html: { type: "string", example: "<html><body><div class='content'>{{DYNAMIC_CONTENT}}</div><a href='{{link_encuesta}}'>Ir a la encuesta</a></body></html>", description: "Marco inmutable. Debe incluir {{DYNAMIC_CONTENT}} para inyectar el body." },
+            typeId: { type: "integer", example: 2 },
+            createdAt: { type: "string", format: "date-time", example: "2024-01-01T12:00:00Z" },
+            updatedAt: { type: "string", format: "date-time", example: "2024-01-02T12:00:00Z" }
+          }
+        },
+        EmailTemplateInput: {
+          type: "object",
+          required: ["data"],
+          properties: {
+            data: {
+              type: "object",
+              required: ["type", "attributes", "relationships"],
+              properties: {
+                type: { type: "string", example: "templates-correo" },
+                attributes: {
+                  type: "object",
+                  required: ["asunto", "cuerpo"],
+                  properties: {
+                    asunto: { type: "string", example: "Encuesta de Seguimiento 2026", description: "Asunto del correo." },
+                    cuerpo: { type: "string", example: "<h1>Estimado {{nombre_completo}}</h1><p>Gracias por ayudarnos.</p><p>Tu opinión es muy importante.</p>", description: "Contenido editable. Solo esto se edita en el front." },
+                    layout_html: {
+                      type: "string",
+                      description: "Marco inmutable. Debe incluir {{DYNAMIC_CONTENT}}. Si se omite, se usa el cuerpo tal cual.",
+                      example: "<html><body style='background:#f5f5f5;padding:20px;'><div style='max-width:600px;margin:auto;background:#fff;padding:24px;border-radius:8px;'><img src='https://tu-dominio/logo.png' alt='Logo' style='height:40px;'/><div style='margin-top:16px;'>{{DYNAMIC_CONTENT}}</div><div style='margin-top:24px;text-align:center;'><a href='{{link_encuesta}}' style='background:#1d4ed8;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none;'>Ir a la encuesta</a></div><p style='font-size:12px;color:#999;margin-top:24px;'>Correo automático, no responder.</p></div></body></html>"
+                    }
+                  }
+                },
+                relationships: {
+                  type: "object",
+                  required: ["tipo_correo"],
+                  properties: {
+                    tipo_correo: {
+                      type: "object",
+                      properties: {
+                        data: {
+                          type: "object",
+                          required: ["type", "id"],
+                          properties: {
+                            type: { type: "string", example: "tipo_correo" },
+                            id: { type: "string", example: "1" }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
       },
     },
   },
   apis: [
     `${path.join(__dirname, "../../**/*.ts")}`,
+    `${path.join(__dirname, "../group/infrastructure/http/swagger/group.swagger.ts")}`,
+    `${path.join(__dirname, "../auth/infrastructure/http/swagger/auth.swagger.ts")}`,
+    `${path.join(__dirname, "../surveyAssignment/infrastructure/http/swagger/assignment.swagger.ts")}`,
+    `${path.join(__dirname, "../mailing/infrastructure/http/swagger/accountswagger.ts")}`,
+    `${path.join(__dirname, "../mailing/client/infrastructure/http/swagger/client.swagger.ts")}`,
+    `${path.join(__dirname, "../mailing/sender/infrastructure/http/swagger/sender.swagger.ts")}`,
+    `${path.join(__dirname, "../distribution/infrastructure/http/swagger/distribution.swagger.ts")}`,
+    `${path.join(__dirname, "../analytics/infrastructure/http/swagger/analytics.swagger.ts")}`,
   ],
 };
 

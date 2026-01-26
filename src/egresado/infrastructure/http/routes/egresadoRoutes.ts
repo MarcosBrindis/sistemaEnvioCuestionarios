@@ -1,16 +1,121 @@
 import { Router } from 'express';
 import { dependencies } from '../../dependencies';
 import { syncEgresadosController } from '../controller/syncEgresadosController';
+import { actualizarPeriodosController } from '../controller/actualizarPeriodosController';
 import laborAchievementRoutes from '../../../../laborAchievement/infrastructure/http/router/laborAchievementRoutes';
 import academicAchievementRoutes from '../../../../academicAchievement/infrastructure/http/router/academicAchievementRoutes';
+import { updatePerfilController } from '../controller/updatePerfilController';
 import { requestLogger } from '../../../../core/middleware/requestLogger';
+import { getProgramasEducativosController } from '../controller/getProgramasEducativosController';
 
 const router = Router();
 router.use(requestLogger);
 
 /**
  * @openapi
- * /api/egresados/sync:
+ * /api/egresado/{id}/perfil:
+ *   patch:
+ *     tags:
+ *       - Egresados
+ *     summary: Actualizar datos de contacto y foto de perfil del egresado
+ *     description: |
+ *       Permite que el egresado actualice su email, fecha de nacimiento e imagen de perfil (URL).
+ *       Solo el propio egresado puede editar su perfil (validación por sesión).
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del egresado a actualizar (debe coincidir con el de la sesión)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               data:
+ *                 type: object
+ *                 properties:
+ *                   type:
+ *                     type: string
+ *                     example: egresados
+ *                   id:
+ *                     type: string
+ *                     example: "50"
+ *                   attributes:
+ *                     type: object
+ *                     properties:
+ *                       email:
+ *                         type: string
+ *                         example: mi_nuevo_correo@gmail.com
+ *                       fecha_nacimiento:
+ *                         type: string
+ *                         format: date
+ *                         example: "1999-05-20"
+ *                       imagen_egresado:
+ *                         type: string
+ *                         example: https://miservidor.com/uploads/foto_perfil_50.jpg
+ *     responses:
+ *       200:
+ *         description: Perfil actualizado correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     type:
+ *                       type: string
+ *                       example: egresados
+ *                     id:
+ *                       type: integer
+ *                       example: 50
+ *                     attributes:
+ *                       $ref: '#/components/schemas/Egresado'
+ *       401:
+ *         description: No autenticado
+ *       403:
+ *         description: No autorizado para editar este perfil
+ */
+router.patch('/:id/perfil', updatePerfilController(dependencies.updateEgresadoPerfil));
+
+/**
+ * @openapi
+ * /api/egresado/programas-educativos:
+ *   get:
+ *     tags:
+ *       - Egresados
+ *     summary: Listar programas educativos
+ *     description: Devuelve el catálogo de programas educativos para poblar selects en el frontend.
+ *     responses:
+ *       200:
+ *         description: Lista de programas educativos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id_programa_educativo:
+ *                         type: integer
+ *                         example: 30001
+ *                       nombre:
+ *                         type: string
+ *                         example: Ingeniería en Software
+ */
+router.get('/programas-educativos', getProgramasEducativosController(dependencies.getProgramasEducativos));
+
+/**
+ * @openapi
+ * /api/egresado/sync:
  *   post:
  *     tags:
  *       - Egresados
@@ -101,6 +206,97 @@ router.use(requestLogger);
 const syncEgresados = syncEgresadosController(dependencies.syncEgresadosFromPlatinum);
 
 router.post('/sync', syncEgresados);
+
+/**
+ * @openapi
+ * /api/egresado/actualizar-periodos:
+ *   post:
+ *     tags:
+ *       - Egresados
+ *     summary: Actualizar el periodo de egreso de los egresados existentes
+ *     description: |
+ *       Obtiene los egresados del servicio externo Platinum y actualiza el campo id_periodo
+ *       de los egresados existentes en la base de datos local.
+ *       
+ *       Este endpoint es útil para corregir egresados que fueron sincronizados sin su periodo
+ *       de egreso correctamente asignado.
+ *       
+ *       Parámetros opcionales de filtro (query parameters):
+ *       - programa: Filtrar por programa educativo
+ *       - matricula_like: Filtrar por matrícula (cohorte de ingreso)
+ *       - periodo: Filtrar por periodo específico
+ *       - periodo_from: Filtrar desde periodo
+ *       - periodo_to: Filtrar hasta periodo
+ *     parameters:
+ *       - in: query
+ *         name: programa
+ *         schema:
+ *           type: string
+ *         description: ID del programa educativo para filtrar
+ *       - in: query
+ *         name: matricula_like
+ *         schema:
+ *           type: string
+ *         description: Matrícula (cohorte de ingreso) para filtrar
+ *       - in: query
+ *         name: periodo
+ *         schema:
+ *           type: string
+ *         description: Periodo específico para filtrar
+ *       - in: query
+ *         name: periodo_from
+ *         schema:
+ *           type: string
+ *         description: Periodo desde para filtrar
+ *       - in: query
+ *         name: periodo_to
+ *         schema:
+ *           type: string
+ *         description: Periodo hasta para filtrar
+ *     responses:
+ *       200:
+ *         description: Actualización completada con resumen
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     type:
+ *                       type: string
+ *                       example: actualizacion-periodos
+ *                     attributes:
+ *                       type: object
+ *                       properties:
+ *                         status:
+ *                           type: string
+ *                           enum: [completado, parcial, fallido]
+ *                         resumen:
+ *                           type: object
+ *                           properties:
+ *                             egresados_procesados:
+ *                               type: integer
+ *                               example: 1500
+ *                             actualizados:
+ *                               type: integer
+ *                               example: 1200
+ *                             sin_periodo_externo:
+ *                               type: integer
+ *                               example: 50
+ *                             periodo_no_encontrado:
+ *                               type: integer
+ *                               example: 100
+ *                             errores:
+ *                               type: integer
+ *                               example: 0
+ *       502:
+ *         description: Error al conectar con el servicio externo
+ */
+const actualizarPeriodos = actualizarPeriodosController(dependencies.actualizarPeriodosEgresados);
+
+router.post('/actualizar-periodos', actualizarPeriodos);
 
 // Rutas para gestión de trayectoria (logros)
 router.use('/:id/logros-laborales', laborAchievementRoutes);

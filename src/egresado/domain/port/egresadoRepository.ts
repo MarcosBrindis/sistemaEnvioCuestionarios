@@ -6,11 +6,30 @@ export interface EgresadoRepository {
   findAll(): Promise<Egresado[]>;
   existsByMatricula(matricula: string): Promise<boolean>;
   batchCreate(egresados: Omit<Egresado, 'id_egresado'>[]): Promise<number>;
+  findById(id: number): Promise<Egresado | null>;
+  /**
+   * Actualiza los datos de perfil permitidos de un egresado.
+   * @param id ID del egresado
+   * @param data Campos a actualizar (solo email, fecha_nacimiento, imagen_egresado)
+   */
+  updatePerfil(id: number, data: Partial<Pick<Egresado, 'email' | 'fecha_nacimiento' | 'imagen_egresado'>>): Promise<Egresado>;
+  /**
+   * Búsqueda avanzada de egresados con filtros y texto libre
+   */
+  buscarEgresadosAvanzado(filtros: {
+    id_programa_educativo?: number;
+    id_periodo_egreso?: number;
+    cohorte?: number;
+    prefijo_matricula?: string;
+    busqueda?: string;
+  }): Promise<Egresado[]>;
 }
 
 export interface PeriodoRepository {
-  create(data: { fecha_inicio: string; fecha_fin: string; cohorte: string }): Promise<any>;
+  create(data: { fecha_inicio: string; fecha_fin: string; cohorte: string; periodo_id_externo?: string }): Promise<any>;
   findByCohorte(cohorte: string): Promise<any | null>;
+  findByPeriodoIdExterno(periodo_id_externo: string): Promise<any | null>;
+  updatePeriodoIdExterno(cohorte: string, periodo_id_externo: string): Promise<void>;
   findAll(): Promise<any[]>;
 }
 
