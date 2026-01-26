@@ -11,8 +11,10 @@ import typeQuestionRoutes from './src/typeQuestion/infrastructure/http/router/ty
 import questionRoutes from './src/question/infrastructure/http/router/questionRoutes';
 import opcionPreguntaRoutes from './src/optionQuestion/infrastructure/http/router/opcionPreguntaRoutes';
 import formRoutes from './src/form/infrastructure/http/router/formRoutes';
-import egresadoRoutes from './src/egresado/infrastructure/http/routes/egresadoRoutes'
+import egresadoRoutes from './src/egresado/infrastructure/http/routes/egresadoRoutes';
+import laborAchievementRoutes from './src/laborAchievement/infrastructure/http/router/laborAchievementRoutes';
 import respuestaRoutes from './src/respuesta/infrastructure/http/router/respuestaRoutes';
+import academicAchievementRoutes from './src/academicAchievement/infrastructure/http/router/academicAchievementRoutes';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -32,7 +34,9 @@ async function startServer() {
     app.use('/api/opcion-pregunta', opcionPreguntaRoutes);
     app.use('/api/formulario', formRoutes);
     app.use('/api/respuesta', respuestaRoutes);
-    app.use('/api/egresado', egresadoRoutes)
+    app.use('/api/egresado', egresadoRoutes);
+    app.use('/api/egresado/logros-laborales', laborAchievementRoutes);
+    app.use('/api/egresado/logros-academicos', academicAchievementRoutes);
 
     // Ruta raíz
     app.get('/', (_req, res) => {

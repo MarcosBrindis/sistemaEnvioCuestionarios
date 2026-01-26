@@ -4,8 +4,51 @@ import { getAcademicAchievementsController } from '../controller/getAcademicAchi
 import { getAcademicAchievementByIdController } from '../controller/getAcademicAchievementByIdController';
 import { updateAcademicAchievementController } from '../controller/updateAcademicAchievementController';
 import { deleteAcademicAchievementController } from '../controller/deleteAcademicAchievementController';
+import { getAllacademicAchievementController } from '../controller/getAcademicAchievementController';
 
 const router = Router({ mergeParams: true });
+
+
+/**
+ * @openapi
+ * /api/egresado/logros-academicos/all:
+ *   get:
+ *     tags:
+ *       - Trayectoria
+ *     summary: Listar todos los logros académicos
+ *     responses:
+ *       200:
+ *         description: Lista de todos los logros académicos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       type:
+ *                         type: string
+ *                         example: logros-academicos
+ *                       id:
+ *                         type: string
+ *                         example: "1"
+ *                       attributes:
+ *                         type: object
+ *                         properties:
+ *                           nombre:
+ *                             type: string
+ *                             example: "Maestría en Ciencias"
+ *                           institucion:
+ *                             type: string
+ *                             example: "UNAM"
+ *                           fecha:
+ *                             type: string
+ *                             example: "2025-01-01"
+ */
+router.get('/all', getAllacademicAchievementController);
 
 /**
  * @openapi
