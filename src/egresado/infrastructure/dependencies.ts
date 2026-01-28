@@ -6,6 +6,9 @@ import { UpdateEgresadoPerfil } from '../application/usecase/UpdateEgresadoPerfi
 import { PeriodoRepositoryMySQL } from './database/mysql/PeriodoRepositoryMYSQL';
 import { ProgramaEducativoRepositoryMySQL } from './database/mysql/ProgramaEducativoRepositoryMYSQL';
 import { GetProgramasEducativos } from '../application/usecase/GetProgramasEducativos';
+import { GetEgresadoWithAchievements } from '../application/usecase/GetEgresadoWithAchievements';
+import { academicAchievementRepository } from '../../academicAchievement/infrastructure/dependencies';
+import { laborAchievementRepository } from '../../laborAchievement/infrastructure/dependencies';
 
 const egresadoRepo = new EgresadoRepositoryMySQL();
 const periodoRepo = new PeriodoRepositoryMySQL();
@@ -33,7 +36,12 @@ export const dependencies = {
   egresadoRepository: egresadoRepo,
   periodoRepository: periodoRepo,
   programaEducativoRepository: programaRepo,
-  updateEgresadoPerfil: new UpdateEgresadoPerfil(egresadoRepo)
+  updateEgresadoPerfil: new UpdateEgresadoPerfil(egresadoRepo),
+  getEgresadoWithAchievements: new GetEgresadoWithAchievements(
+    egresadoRepo,
+    academicAchievementRepository,
+    laborAchievementRepository
+  )
 };
 
 export const egresadoRepository = egresadoRepo;
