@@ -7,6 +7,7 @@ import { PeriodoRepositoryMySQL } from './database/mysql/PeriodoRepositoryMYSQL'
 import { ProgramaEducativoRepositoryMySQL } from './database/mysql/ProgramaEducativoRepositoryMYSQL';
 import { GetProgramasEducativos } from '../application/usecase/GetProgramasEducativos';
 import { GetEgresadoWithAchievements } from '../application/usecase/GetEgresadoWithAchievements';
+import { GetAllEgresadosWithAchievements } from '../application/usecase/GetAllEgresadosWithAchievements';
 import { academicAchievementRepository } from '../../academicAchievement/infrastructure/dependencies';
 import { laborAchievementRepository } from '../../laborAchievement/infrastructure/dependencies';
 
@@ -38,6 +39,11 @@ export const dependencies = {
   programaEducativoRepository: programaRepo,
   updateEgresadoPerfil: new UpdateEgresadoPerfil(egresadoRepo),
   getEgresadoWithAchievements: new GetEgresadoWithAchievements(
+    egresadoRepo,
+    academicAchievementRepository,
+    laborAchievementRepository
+  ),
+  getAllEgresadosWithAchievements: new GetAllEgresadosWithAchievements(
     egresadoRepo,
     academicAchievementRepository,
     laborAchievementRepository

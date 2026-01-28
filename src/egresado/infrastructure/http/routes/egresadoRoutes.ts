@@ -7,7 +7,8 @@ import academicAchievementRoutes from '../../../../academicAchievement/infrastru
 import { updatePerfilController } from '../controller/updatePerfilController';
 import { requestLogger } from '../../../../core/middleware/requestLogger';
 import { getProgramasEducativosController } from '../controller/getProgramasEducativosController';
-import { getEgresadoWithAchievementsController } from '../controller/getEgresadoWithAchievementsController'
+import { getEgresadoWithAchievementsController } from '../controller/getEgresadoWithAchievementsController';
+import { getAllEgresadosWithAchievementsController } from '../controller/getAllEgresadosWithAchievementsController';
 
 const router = Router();
 router.use(requestLogger);
@@ -441,6 +442,135 @@ router.post('/actualizar-periodos', actualizarPeriodos);
 const getEgresadoWithAchievements = getEgresadoWithAchievementsController(dependencies.getEgresadoWithAchievements);
 
 router.get('/:id/perfil-completo', getEgresadoWithAchievements);
+
+/**
+ * @openapi
+ * /api/egresado/perfiles-completos:
+ *   get:
+ *     tags:
+ *       - Egresados
+ *     summary: Obtener todos los perfiles completos de egresados con sus logros
+ *     description: |
+ *       Devuelve toda la información de todos los egresados (nombre, correo, carrera, foto, etc.)
+ *       junto con todos sus logros académicos y laborales en una sola respuesta.
+ *     responses:
+ *       200:
+ *         description: Perfiles completos de egresados obtenidos exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       egresado:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                             example: 1
+ *                           nombre:
+ *                             type: string
+ *                             example: Juan
+ *                           primer_apellido:
+ *                             type: string
+ *                             example: Pérez
+ *                           segundo_apellido:
+ *                             type: string
+ *                             nullable: true
+ *                             example: García
+ *                           matricula:
+ *                             type: string
+ *                             example: 2020010001
+ *                           curp:
+ *                             type: string
+ *                             example: PEGJ000101HDFRRN09
+ *                           email:
+ *                             type: string
+ *                             nullable: true
+ *                             example: juan.perez@email.com
+ *                           imagen_egresado:
+ *                             type: string
+ *                             nullable: true
+ *                             example: https://example.com/foto.jpg
+ *                           fecha_nacimiento:
+ *                             type: string
+ *                             nullable: true
+ *                             example: 2000-01-01
+ *                           is_active:
+ *                             type: boolean
+ *                             example: true
+ *                           id_programa_educativo:
+ *                             type: integer
+ *                             nullable: true
+ *                             example: 5
+ *                           id_periodo:
+ *                             type: integer
+ *                             nullable: true
+ *                             example: 12
+ *                       logros_academicos:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             id_academic_achievement:
+ *                               type: integer
+ *                             name:
+ *                               type: string
+ *                             institution:
+ *                               type: string
+ *                             date:
+ *                               type: string
+ *                         example:
+ *                           - id_academic_achievement: 1
+ *                             name: Maestría en Ciencias de la Computación
+ *                             institution: Universidad Tecnológica
+ *                             date: 2023-06-15
+ *                       logros_laborales:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             id_labor_achievement:
+ *                               type: integer
+ *                             company:
+ *                               type: string
+ *                             position:
+ *                               type: string
+ *                             date:
+ *                               type: string
+ *                         example:
+ *                           - id_labor_achievement: 1
+ *                             company: Tech Solutions
+ *                             position: Desarrollador Senior
+ *                             date: 2022-01-15
+ *                 total:
+ *                   type: integer
+ *                   description: Cantidad total de egresados retornados
+ *                   example: 150
+ *       500:
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Error al obtener los perfiles de egresados
+ */
+const getAllEgresadosWithAchievements = getAllEgresadosWithAchievementsController(dependencies.getAllEgresadosWithAchievements);
+
+router.get('/perfiles-completos', getAllEgresadosWithAchievements);
 
 // Rutas para gestión de trayectoria (logros)
 router.use('/:id/logros-laborales', laborAchievementRoutes);

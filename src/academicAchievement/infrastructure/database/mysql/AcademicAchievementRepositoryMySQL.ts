@@ -35,6 +35,15 @@ export class AcademicAchievementRepositoryMySQL implements AcademicAchievementRe
     return rows;
   }
 
+  async findAllWithEgresadoId(): Promise<Array<AcademicAchievement & { id_egresado: number }>> {
+    const [rows]: any = await MysqlConnection.execute(
+      `SELECT a.id_logro_academico as id_academic_achievement, a.nombre as name, a.institucion as institution, a.fecha as date, ea.id_egresado
+       FROM logro_academico a
+       INNER JOIN egresado_logro_academico ea ON a.id_logro_academico = ea.id_logro_academico`
+    );
+    return rows;
+  }
+
   async findById(idEgresado: number, idAchievement: number): Promise<AcademicAchievement | null> {
     const [rows]: any = await MysqlConnection.execute(
       `SELECT a.id_logro_academico as id_academic_achievement, a.nombre as name, a.institucion as institution, a.fecha as date
