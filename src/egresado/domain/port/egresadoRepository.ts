@@ -1,4 +1,4 @@
-import { Egresado } from '../model/egresado';
+import { Egresado, EstadoEgresadoCatalogo } from '../model/egresado';
 
 export interface EgresadoRepository {
   create(data: Omit<Egresado, 'id_egresado'>): Promise<Egresado>;
@@ -13,6 +13,22 @@ export interface EgresadoRepository {
    * @param data Campos a actualizar (solo email, fecha_nacimiento, imagen_egresado)
    */
   updatePerfil(id: number, data: Partial<Pick<Egresado, 'email' | 'fecha_nacimiento' | 'imagen_egresado'>>): Promise<Egresado>;
+  /**
+   * Actualiza el estado de un egresado
+   * @param id ID del egresado
+   * @param idEstado ID del estado
+   */
+  updateEstado(id: number, idEstado: number): Promise<Egresado>;
+  /**
+   * Actualiza el perfil completo de un egresado (con estado)
+   * @param id ID del egresado
+   * @param data Campos a actualizar (todos excepto matricula, curp, id_egresado)
+   */
+  updatePerfilCompleto(id: number, data: Partial<Pick<Egresado, 'nombre' | 'primer_apellido' | 'segundo_apellido' | 'email' | 'fecha_nacimiento' | 'imagen_egresado' | 'id_programa_educativo' | 'id_periodo' | 'id_estado'>>): Promise<Egresado>;
+  /**
+   * Obtiene los estados disponibles para egresados
+   */
+  getEstados(): Promise<EstadoEgresadoCatalogo[]>;
   /**
    * Búsqueda avanzada de egresados con filtros y texto libre
    */

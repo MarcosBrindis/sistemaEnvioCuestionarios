@@ -9,8 +9,21 @@ export interface Egresado {
   imagen_egresado: string | null;
   fecha_nacimiento: string | null;
   is_active: boolean;
+  id_estado: number;
   id_programa_educativo: number | null;
   id_periodo: number | null;
+}
+
+export enum EstadoEgresado {
+  PENDIENTE = 'pendiente',
+  RECHAZADO = 'rechazado',
+  APROBADO = 'aprobado'
+}
+
+export interface EstadoEgresadoCatalogo {
+  id_estado: number;
+  nombre: string;
+  descripcion: string;
 }
 export interface EgresadoExternoDTO {
   Matricula: string;
