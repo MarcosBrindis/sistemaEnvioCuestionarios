@@ -3,6 +3,9 @@ import { SyncEgresadosFromPlatinum } from '../application/usecase/SyncEgresadosF
 import { ActualizarPeriodosEgresados } from '../application/usecase/ActualizarPeriodosEgresados';
 import { EgresadoRepositoryMySQL } from './database/mysql/EgresadoRepositoryMYSQL';
 import { UpdateEgresadoPerfil } from '../application/usecase/UpdateEgresadoPerfil';
+import { UpdatePerfilCompleto } from '../application/usecase/UpdatePerfilCompleto';
+import { UpdatePerfilCompletoAdmin } from '../application/usecase/UpdatePerfilCompletoAdmin';
+import { UpdateEstadoEgresado } from '../application/usecase/UpdateEstadoEgresado';
 import { PeriodoRepositoryMySQL } from './database/mysql/PeriodoRepositoryMYSQL';
 import { ProgramaEducativoRepositoryMySQL } from './database/mysql/ProgramaEducativoRepositoryMYSQL';
 import { GetProgramasEducativos } from '../application/usecase/GetProgramasEducativos';
@@ -38,6 +41,9 @@ export const dependencies = {
   periodoRepository: periodoRepo,
   programaEducativoRepository: programaRepo,
   updateEgresadoPerfil: new UpdateEgresadoPerfil(egresadoRepo),
+  updatePerfilCompleto: new UpdatePerfilCompleto(egresadoRepo),
+  updatePerfilCompletoAdmin: new UpdatePerfilCompletoAdmin(egresadoRepo),
+  updateEstadoEgresado: new UpdateEstadoEgresado(egresadoRepo),
   getEgresadoWithAchievements: new GetEgresadoWithAchievements(
     egresadoRepo,
     academicAchievementRepository,
