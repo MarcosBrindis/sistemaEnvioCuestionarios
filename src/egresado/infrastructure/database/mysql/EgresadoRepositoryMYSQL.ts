@@ -1,6 +1,6 @@
 import { MysqlConnection } from '../../../../core/db/mysl/connection';
 import { BaseEgresadoRepository } from './BaseEgresadoRepository';
-import { Egresado } from '../../../domain/model/egresado';
+import { Egresado, EstadoEgresadoCatalogo } from '../../../domain/model/egresado';
 
 export class EgresadoRepositoryMySQL extends BaseEgresadoRepository {
   async updatePerfil(
@@ -30,6 +30,80 @@ export class EgresadoRepositoryMySQL extends BaseEgresadoRepository {
     const actualizado = await this.findById(id);
     if (!actualizado) throw new Error('Egresado no encontrado tras actualizar');
     return actualizado;
+  }
+
+  async updateEstado(id: number, idEstado: number): Promise<Egresado> {
+    await MysqlConnection.execute(
+      `UPDATE egresado SET id_estado = ? WHERE id_egresado = ?`,
+      [idEstado, id]
+    );
+    const actualizado = await this.findById(id);
+    if (!actualizado) throw new Error('Egresado no encontrado tras actualizar estado');
+    return actualizado;
+  }
+
+  async updatePerfilCompleto(
+    id: number,
+    data: Partial<Pick<Egresado, 'nombre' | 'primer_apellido' | 'segundo_apellido' | 'email' | 'fecha_nacimiento' | 'imagen_egresado' | 'id_programa_educativo' | 'id_periodo' | 'id_estado'>>
+  ): Promise<Egresado> {
+    const campos: string[] = [];
+    const valores: any[] = [];
+    
+    if (data.nombre !== undefined) {
+      campos.push('nombre = ?');
+      valores.push(data.nombre);
+    }
+    if (data.primer_apellido !== undefined) {
+      campos.push('primer_apellido = ?');
+      valores.push(data.primer_apellido);
+    }
+    if (data.segundo_apellido !== undefined) {
+      campos.push('segundo_apellido = ?');
+      valores.push(data.segundo_apellido);
+    }
+    if (data.email !== undefined) {
+      campos.push('email = ?');
+      valores.push(data.email);
+    }
+    if (data.fecha_nacimiento !== undefined) {
+      campos.push('fecha_nacimiento = ?');
+      valores.push(data.fecha_nacimiento);
+    }
+    if (data.imagen_egresado !== undefined) {
+      campos.push('imagen_egresado = ?');
+      valores.push(data.imagen_egresado);
+    }
+    if (data.id_programa_educativo !== undefined) {
+      campos.push('id_programa_educativo = ?');
+      valores.push(data.id_programa_educativo);
+    }
+    if (data.id_periodo !== undefined) {
+      campos.push('id_periodo = ?');
+      valores.push(data.id_periodo);
+    }
+    if (data.id_estado !== undefined) {
+      campos.push('id_estado = ?');
+      valores.push(data.id_estado);
+    }
+    
+    if (campos.length === 0) {
+      throw new Error('No se proporcionaron campos válidos para actualizar');
+    }
+    
+    valores.push(id);
+    const sql = `UPDATE egresado SET ${campos.join(', ')} WHERE id_egresado = ?`;
+    await MysqlConnection.execute(sql, valores);
+    
+    const actualizado = await this.findById(id);
+    if (!actualizado) throw new Error('Egresado no encontrado tras actualizar');
+    return actualizado;
+  }
+
+  async getEstados(): Promise<EstadoEgresadoCatalogo[]> {
+    const [rows]: any = await MysqlConnection.execute(
+      `SELECT id_estado, nombre, descripcion FROM estado_egresado ORDER BY id_estado`
+    );
+    return rows;
   }
   async create(data: Omit<Egresado, 'id_egresado'>): Promise<Egresado> {
     const [result]: any = await MysqlConnection.execute(

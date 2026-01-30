@@ -5,6 +5,9 @@ import { actualizarPeriodosController } from '../controller/actualizarPeriodosCo
 import laborAchievementRoutes from '../../../../laborAchievement/infrastructure/http/router/laborAchievementRoutes';
 import academicAchievementRoutes from '../../../../academicAchievement/infrastructure/http/router/academicAchievementRoutes';
 import { updatePerfilController } from '../controller/updatePerfilController';
+import { updatePerfilCompletoController } from '../controller/updatePerfilCompletoController';
+import { updatePerfilCompletoAdminController } from '../controller/updatePerfilCompletoAdminController';
+import { updateEstadoEgresadoController } from '../controller/updateEstadoEgresadoController';
 import { requestLogger } from '../../../../core/middleware/requestLogger';
 import { getProgramasEducativosController } from '../controller/getProgramasEducativosController';
 import { getEgresadoWithAchievementsController } from '../controller/getEgresadoWithAchievementsController';
@@ -84,6 +87,279 @@ router.use(requestLogger);
  *         description: No autorizado para editar este perfil
  */
 router.patch('/:id/perfil', updatePerfilController(dependencies.updateEgresadoPerfil));
+
+/**
+ * @openapi
+ * /api/egresado/{id}/perfil-completo:
+ *   patch:
+ *     tags:
+ *       - Egresados
+ *     summary: Actualizar perfil completo del egresado
+ *     description: |
+ *       Permite que el egresado actualice su perfil completo incluyendo:
+ *       - Nombre
+ *       - Primer apellido
+ *       - Segundo apellido (opcional)
+ *       - Email
+ *       - Fecha de nacimiento
+ *       - Imagen de perfil (URL)
+ *       - Programa educativo
+ *       - Período
+ *       - Estado del perfil
+ *       
+ *       NO se permite editar: matricula, curp (campos de identidad)
+ *       Solo el propio egresado puede editar su perfil (validación por sesión).
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del egresado a actualizar (debe coincidir con el de la sesión)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               data:
+ *                 type: object
+ *                 properties:
+ *                   type:
+ *                     type: string
+ *                     example: egresados
+ *                   id:
+ *                     type: string
+ *                     example: "50"
+ *                   attributes:
+ *                     type: object
+ *                     properties:
+ *                       nombre:
+ *                         type: string
+ *                         example: "Juan Carlos"
+ *                       primer_apellido:
+ *                         type: string
+ *                         example: "Pérez"
+ *                       segundo_apellido:
+ *                         type: string
+ *                         nullable: true
+ *                         example: "García"
+ *                       email:
+ *                         type: string
+ *                         example: mi_nuevo_correo@gmail.com
+ *                       fecha_nacimiento:
+ *                         type: string
+ *                         format: date
+ *                         example: "1999-05-20"
+ *                       imagen_egresado:
+ *                         type: string
+ *                         example: https://miservidor.com/uploads/foto_perfil_50.jpg
+ *                       id_programa_educativo:
+ *                         type: integer
+ *                         example: 1
+ *                       id_periodo:
+ *                         type: integer
+ *                         example: 5
+ *                       id_estado:
+ *                         type: integer
+ *                         example: 3
+ *                         description: "1=pendiente, 2=rechazado, 3=aprobado"
+ *     responses:
+ *       200:
+ *         description: Perfil actualizado correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     type:
+ *                       type: string
+ *                       example: egresados
+ *                     id:
+ *                       type: integer
+ *                       example: 50
+ *                     attributes:
+ *                       $ref: '#/components/schemas/Egresado'
+ *       401:
+ *         description: No autenticado
+ *       403:
+ *         description: No autorizado para editar este perfil
+ */
+router.patch('/:id/perfil-completo', updatePerfilCompletoController(dependencies.updatePerfilCompleto));
+
+/**
+ * @openapi
+ * /api/egresado/admin/{id}/perfil-completo:
+ *   patch:
+ *     tags:
+ *       - Egresados - Admin
+ *     summary: Actualizar perfil completo de un egresado (Admin)
+ *     description: |
+ *       Permite que un administrador actualice el perfil completo de cualquier egresado.
+ *       Incluye la capacidad de aprobar/rechazar perfiles mediante el cambio de estado.
+ *       Campos editables: nombre, apellidos, email, fecha de nacimiento, imagen, programa educativo, período y estado.
+ *       Campos NO editables: matrícula y CURP (campos de identidad).
+ *       
+ *       **Nota:** Por ahora no valida permisos de administrador. Esta validación se agregará cuando se implemente la capa de autenticación de administradores.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del egresado a actualizar
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               data:
+ *                 type: object
+ *                 properties:
+ *                   type:
+ *                     type: string
+ *                     example: egresados
+ *                   id:
+ *                     type: string
+ *                     example: "50"
+ *                   attributes:
+ *                     type: object
+ *                     properties:
+ *                       nombre:
+ *                         type: string
+ *                         example: "Juan"
+ *                       primer_apellido:
+ *                         type: string
+ *                         example: "Pérez"
+ *                       segundo_apellido:
+ *                         type: string
+ *                         nullable: true
+ *                         example: "García"
+ *                       email:
+ *                         type: string
+ *                         format: email
+ *                         example: "juan.perez@example.com"
+ *                       fecha_nacimiento:
+ *                         type: string
+ *                         format: date
+ *                         example: "1995-05-20"
+ *                       imagen_egresado:
+ *                         type: string
+ *                         format: uri
+ *                         example: "https://servidor.com/foto.jpg"
+ *                       id_programa_educativo:
+ *                         type: integer
+ *                         example: 1
+ *                       id_periodo:
+ *                         type: integer
+ *                         example: 5
+ *                       id_estado:
+ *                         type: integer
+ *                         description: "1=Aprobado, 2=Pendiente, 3=Rechazado"
+ *                         enum: [1, 2, 3]
+ *                         example: 1
+ *     responses:
+ *       200:
+ *         description: Perfil actualizado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     type:
+ *                       type: string
+ *                       example: egresados
+ *                     id:
+ *                       type: integer
+ *                       example: 50
+ *                     attributes:
+ *                       $ref: '#/components/schemas/Egresado'
+ *       400:
+ *         description: Datos inválidos
+ *       404:
+ *         description: Egresado no encontrado
+ */
+router.patch('/admin/:id/perfil-completo', updatePerfilCompletoAdminController(dependencies.updatePerfilCompletoAdmin));
+
+/**
+ * @openapi
+ * /api/egresado/{id}/estado:
+ *   patch:
+ *     tags:
+ *       - Egresados
+ *     summary: Actualizar estado del egresado
+ *     description: |
+ *       Actualiza el estado de un egresado. 
+ *       Estados disponibles:
+ *       - 1: Pendiente (default cuando se crea)
+ *       - 2: Rechazado
+ *       - 3: Aprobado
+ *       
+ *       Esta operación generalmente la realiza un administrador del sistema.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del egresado a actualizar
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               data:
+ *                 type: object
+ *                 properties:
+ *                   type:
+ *                     type: string
+ *                     example: egresados
+ *                   id:
+ *                     type: string
+ *                     example: "50"
+ *                   attributes:
+ *                     type: object
+ *                     properties:
+ *                       id_estado:
+ *                         type: integer
+ *                         example: 3
+ *                         description: "1=pendiente, 2=rechazado, 3=aprobado"
+ *     responses:
+ *       200:
+ *         description: Estado actualizado correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     type:
+ *                       type: string
+ *                       example: egresados
+ *                     id:
+ *                       type: integer
+ *                       example: 50
+ *                     attributes:
+ *                       $ref: '#/components/schemas/Egresado'
+ *       400:
+ *         description: Estado inválido
+ *       404:
+ *         description: Egresado no encontrado
+ */
+router.patch('/:id/estado', updateEstadoEgresadoController(dependencies.updateEstadoEgresado));
 
 /**
  * @openapi

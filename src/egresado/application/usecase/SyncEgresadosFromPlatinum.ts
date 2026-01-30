@@ -209,6 +209,7 @@ export class SyncEgresadosFromPlatinum {
           imagen_egresado: null,
           fecha_nacimiento: isValidDate(egresadoExt.FechaNacimiento) ? egresadoExt.FechaNacimiento : null,
           is_active: true,
+          id_estado: 1, // Pendiente por defecto
           id_programa_educativo: (programa as any).id_programa_educativo,
           id_periodo: periodo ? (periodo as any).id_periodo : null
         };
