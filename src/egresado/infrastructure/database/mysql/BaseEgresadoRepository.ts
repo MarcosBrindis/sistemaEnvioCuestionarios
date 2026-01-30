@@ -1,5 +1,5 @@
 import { EgresadoRepository, PeriodoRepository, ProgramaEducativoRepository } from '../../../domain/port/egresadoRepository';
-import { Egresado } from '../../../domain/model/egresado';
+import { Egresado, EstadoEgresadoCatalogo } from '../../../domain/model/egresado';
 
 export abstract class BaseEgresadoRepository implements EgresadoRepository {
   abstract findById(id: number): Promise<Egresado | null>;
@@ -7,6 +7,13 @@ export abstract class BaseEgresadoRepository implements EgresadoRepository {
     id: number,
     data: Partial<Pick<Egresado, 'email' | 'fecha_nacimiento' | 'imagen_egresado'>>
   ): Promise<Egresado>;
+  abstract updateEstado(id: number, idEstado: number): Promise<Egresado>;
+  abstract updatePerfilCompleto(
+    id: number,
+    data: Partial<Pick<Egresado, 'email' | 'fecha_nacimiento' | 'imagen_egresado' | 'id_estado'>>
+  ): Promise<Egresado>;
+  abstract getEstados(): Promise<EstadoEgresadoCatalogo[]>;
+
   create(_data: Omit<Egresado, 'id_egresado'>): Promise<Egresado> {
     return Promise.reject(new Error('Method not implemented'));
   }
