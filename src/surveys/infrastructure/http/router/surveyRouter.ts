@@ -3,9 +3,11 @@ import { createSurveyController } from '../controller/createSurveyController';
 import { getSurveysController } from '../controller/getSurveysController';
 import { getSurveyByIdController } from '../controller/getSurveyByIdController';
 import { getPublicSurveyByUuidController } from '../controller/getPublicSurveyByUuidController';
+import { getPublicSurveyFormattedController } from '../controller/getPublicSurveyFormattedController';
+import { submitPublicSurveyResponseController } from '../controller/submitPublicSurveyResponseController';
 import { updateSurveyController } from '../controller/updateSurveyController';
 import { deleteSurveyController } from '../controller/deleteSurveyController';
-import { createSurveyUseCase, getSurveysUseCase, getSurveyByIdUseCase, updateSurveyUseCase, deleteSurveyUseCase, getPublicSurveyByUuidUseCase } from '../../dependencies';
+import { createSurveyUseCase, getSurveysUseCase, getSurveyByIdUseCase, updateSurveyUseCase, deleteSurveyUseCase, getPublicSurveyByUuidUseCase, getSurveyFormattedByUuidUseCase, submitPublicSurveyResponseUseCase } from '../../dependencies';
 
 const router = Router();
 
@@ -93,6 +95,119 @@ router.get('/', getSurveysController(getSurveysUseCase));
  *         description: No encontrado
  */
 router.get('/publico/:uuid', getPublicSurveyByUuidController(getPublicSurveyByUuidUseCase));
+
+/**
+ * @swagger
+ * /api/encuestas/responder/{uuid}:
+ *   get:
+ *     summary: Obtener encuesta formateada para responder (endpoint público)
+ *     tags: [Public Surveys]
+ *     description: Devuelve la encuesta en el formato esperado por el frontend sin exponer IDs internos
+ *     parameters:
+ *       - in: path
+ *         name: uuid
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: UUID del encuestado (encuesta_egresados)
+ *     responses:
+ *       200:
+ *         description: Datos de la encuesta formateados para el frontend
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 titulo_encuesta:
+ *                   type: string
+ *                   example: "Seguimiento 2026"
+ *                 descripcion:
+ *                   type: string
+ *                 formulario:
+ *                   type: object
+ *                   properties:
+ *                     titulo:
+ *                       type: string
+ *                     preguntas:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           tipo:
+ *                             type: string
+ *                           texto:
+ *                             type: string
+ *                           es_obligatoria:
+ *                             type: boolean
+ *                           orden:
+ *                             type: number
+ *                           opciones:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *       403:
+ *         description: Acceso revocado
+ *       404:
+ *         description: Encuesta no encontrada
+ */
+router.get('/responder/:uuid', getPublicSurveyFormattedController(getSurveyFormattedByUuidUseCase));
+
+/**
+ * @swagger
+ * /api/encuestas/responder/{uuid}:
+ *   post:
+ *     summary: Enviar respuestas de encuesta (endpoint público)
+ *     tags: [Public Surveys]
+ *     description: Registra las respuestas del egresado a la encuesta
+ *     parameters:
+ *       - in: path
+ *         name: uuid
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: UUID del encuestado (encuesta_egresados)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - respuestas_json
+ *             properties:
+ *               respuestas_json:
+ *                 type: object
+ *                 description: Objeto con las respuestas key=id_pregunta, value=respuesta
+ *                 example:
+ *                   "101": "Si"
+ *                   "102": "Comentario del usuario"
+ *     responses:
+ *       201:
+ *         description: Respuestas registradas correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id_respuesta:
+ *                       type: number
+ *                     mensaje:
+ *                       type: string
+ *       400:
+ *         description: Datos incompletos o inválidos
+ *       403:
+ *         description: Acceso revocado
+ *       404:
+ *         description: Encuesta no encontrada
+ *       409:
+ *         description: El egresado ya respondió esta encuesta
+ */
+router.post('/responder/:uuid', submitPublicSurveyResponseController(submitPublicSurveyResponseUseCase));
 
 /**
  * @swagger

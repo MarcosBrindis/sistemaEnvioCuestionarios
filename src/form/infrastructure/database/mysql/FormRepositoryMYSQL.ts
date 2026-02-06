@@ -190,4 +190,54 @@ export class FormularioRepositoryMySQL implements FormularioRepository {
     );
     return rows[0].count > 0;
   }
+
+  async getQuestionsFormattedForPublic(formularioId: number): Promise<Array<{
+    id: string;
+    tipo: string;
+    texto: string;
+    es_obligatoria: boolean;
+    orden: number;
+    opciones: Array<{ id: string; valor: string }>;
+  }>> {
+    // Obtener preguntas asociadas al formulario
+    const [preguntas]: any = await MysqlConnection.execute(
+      `SELECT fp.id_pregunta, fp.orden, p.texto_pregunta, p.es_obligatoria, p.id_tipo_pregunta
+       FROM formulacion_pregunta fp
+       JOIN pregunta p ON fp.id_pregunta = p.id_pregunta
+       WHERE fp.id_formulario = ?
+       ORDER BY fp.orden ASC`,
+      [formularioId]
+    );
+
+    const preguntasFormateadas = [];
+    for (const pregunta of preguntas) {
+      // Obtener tipo de pregunta
+      const [tipoRows]: any = await MysqlConnection.execute(
+        `SELECT nombre FROM tipo_pregunta WHERE id_tipo_pregunta = ?`,
+        [pregunta.id_tipo_pregunta]
+      );
+      const tipo = tipoRows[0]?.nombre || 'desconocido';
+
+      // Obtener opciones
+      const [opciones]: any = await MysqlConnection.execute(
+        `SELECT id_opcion_pregunta, texto_opcion FROM opcion_pregunta WHERE id_pregunta = ? ORDER BY id_opcion_pregunta ASC`,
+        [pregunta.id_pregunta]
+      );
+
+      preguntasFormateadas.push({
+        id: pregunta.id_pregunta.toString(),
+        tipo: tipo,
+        texto: pregunta.texto_pregunta,
+        es_obligatoria: !!pregunta.es_obligatoria,
+        orden: pregunta.orden,
+        opciones: opciones.map((op: any) => ({
+          id: op.id_opcion_pregunta.toString(),
+          valor: op.texto_opcion
+        }))
+      });
+    }
+
+    return preguntasFormateadas;
+  }
 }
+
