@@ -24,4 +24,14 @@ export interface FormularioRepository {
   preguntaExists(preguntaId: number): Promise<boolean>;
 
   getQuestionsWithOptionsByFormId(formularioId: number): Promise<any[]>;
+  
+  // Método para obtener preguntas formateadas para el endpoint público
+  getQuestionsFormattedForPublic(formularioId: number): Promise<Array<{
+    id: string;
+    tipo: string;
+    texto: string;
+    es_obligatoria: boolean;
+    orden: number;
+    opciones: Array<{ id: string; valor: string }>;
+  }>>;
 }
