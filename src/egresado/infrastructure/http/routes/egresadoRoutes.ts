@@ -644,6 +644,9 @@ router.post('/actualizar-periodos', actualizarPeriodos);
  *                         is_active:
  *                           type: boolean
  *                           example: true
+ *                         id_estado:
+ *                           type: integer
+ *                           example: 3
  *                         id_programa_educativo:
  *                           type: integer
  *                           nullable: true
@@ -782,6 +785,9 @@ router.get('/:id/perfil-completo', getEgresadoWithAchievements);
  *                           is_active:
  *                             type: boolean
  *                             example: true
+ *                           id_estado:
+ *                             type: integer
+ *                             example: 3
  *                           id_programa_educativo:
  *                             type: integer
  *                             nullable: true
