@@ -33,6 +33,7 @@ export class GetEgresadoWithAchievements {
         imagen_egresado: egresado.imagen_egresado,
         fecha_nacimiento: egresado.fecha_nacimiento,
         is_active: egresado.is_active,
+        id_estado: egresado.id_estado,
         id_programa_educativo: egresado.id_programa_educativo,
         id_periodo: egresado.id_periodo
       },
