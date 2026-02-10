@@ -22,9 +22,6 @@ const router = Router();
  *             attributes:
  *               type: object
  *               properties:
- *                 matricula:
- *                   type: string
- *                   example: "123456"
  *                 curp:
  *                   type: string
  *                   example: "ABCD123456HDF..."
