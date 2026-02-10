@@ -9,8 +9,8 @@ export interface LoginResult {
 export class LoginEgresado {
   constructor(private authRepo: AuthRepository) {}
 
-  async execute(matricula: string, curp: string): Promise<LoginResult | null> {
-    const egresado = await this.authRepo.validateCredentials(matricula, curp);
+  async execute(curp: string): Promise<LoginResult | null> {
+    const egresado = await this.authRepo.validateCredentials(curp);
     if (!egresado) return null;
     return {
       user: {
