@@ -8,7 +8,10 @@ export const loginController = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Tipo de recurso inválido' });
     }
     const attrs = data.attributes || {};
-    const loginResult = await loginEgresadoUsecase.execute(attrs.matricula, attrs.curp);
+    if (!attrs.curp) {
+      return res.status(400).json({ error: 'La curp es obligatoria' });
+    }
+    const loginResult = await loginEgresadoUsecase.execute(attrs.curp);
     if (!loginResult) {
       return res.status(401).json({ error: 'Credenciales incorrectas' });
     }
