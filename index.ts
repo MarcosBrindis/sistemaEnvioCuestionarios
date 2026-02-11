@@ -30,6 +30,8 @@ import mailingClientRouter from './src/mailing/client/infrastructure/http/router
 import mailingSenderRouter from './src/mailing/sender/infrastructure/http/router/sender.router';
 import distributionRouter from './src/distribution/infrastructure/http/router/distribution.router';
 import analyticsRouter from './src/analytics/infrastructure/http/router/analytics.router';
+import datosDomiciliariosRoutes from './src/datosDomiciliarios/infrastructure/http/routes/datosDomiciliariosRoutes';
+import datosLaboralesRoutes from './src/datosLaborales/infrastructure/http/routes/datosLaboralesRoutes';
 
 
 const app = express();
@@ -84,6 +86,8 @@ async function startServer() {
     app.use('/api/egresado/logros-academicos', academicAchievementRoutes);
 
     app.use('/api/egresado', egresadoRoutes)
+    app.use('/api/datos-domiciliarios', datosDomiciliariosRoutes);
+    app.use('/api/datos-laborales', datosLaboralesRoutes);
     app.use('/api/grupo', groupRoutes)
     app.use('/api/auth', authRoutes);
     app.use('/api', importarMiembrosRoutes);
