@@ -11,6 +11,7 @@ export class GenerateSurveyReportUseCase {
     const questions = await this.repo.getQuestionsWithOptions(id_encuesta);
     const statsMap = this.initializeStats(questions);
     const optionLabelMap = this.buildOptionLabelMap(questions);
+    const likertQuestionIds = this.getLikertQuestionIds(questions);
 
     const stream = this.repo.getResponsesStream(id_encuesta);
 
@@ -23,16 +24,33 @@ export class GenerateSurveyReportUseCase {
         } catch {
           return;
         }
-        if (!Array.isArray(parsed)) return;
 
-        for (const item of parsed) {
+        let responses: any[] = [];
+        if (Array.isArray(parsed)) {
+          responses = parsed;
+        } else if (typeof parsed === 'object' && parsed !== null) {
+          responses = Object.entries(parsed).map(([questionId, valor]) => ({
+            id_pregunta: questionId,
+            valor
+          }));
+        } else {
+          return;
+        }
+
+        for (const item of responses) {
           const questionId = Number(item?.id_pregunta);
           if (!questionId) continue;
           const valueRaw = item?.valor;
-          const label = this.resolveLabel(optionLabelMap, questionId, valueRaw);
-          if (!label) continue;
+          const isLikert = likertQuestionIds.has(questionId);
           const questionMap = statsMap.get(questionId) || new Map<string, number>();
-          questionMap.set(label, (questionMap.get(label) || 0) + 1);
+
+          const values = Array.isArray(valueRaw) ? valueRaw : [valueRaw];
+          for (const value of values) {
+            const label = this.resolveLabel(optionLabelMap, questionId, value, isLikert);
+            if (!label) continue;
+            questionMap.set(label, (questionMap.get(label) || 0) + 1);
+          }
+
           statsMap.set(questionId, questionMap);
         }
       });
@@ -44,12 +62,14 @@ export class GenerateSurveyReportUseCase {
     const charts = questions.map((q) => {
       const datasetMap = statsMap.get(q.id_pregunta) || new Map<string, number>();
 
-      const dataset = q.opciones.length > 0
-        ? q.opciones.map((op) => {
-            const label = op.etiqueta || op.texto_opcion || String(op.id_opcion_pregunta);
-            return { label, count: datasetMap.get(label) || 0 };
-          })
-        : Array.from(datasetMap.entries()).map(([label, count]) => ({ label, count }));
+      const dataset = this.isLikertQuestion(q)
+        ? this.getLikertScaleLabels().map((label) => ({ label, count: datasetMap.get(label) || 0 }))
+        : q.opciones.length > 0
+          ? q.opciones.map((op) => {
+              const label = op.etiqueta || op.texto_opcion || String(op.id_opcion_pregunta);
+              return { label, count: datasetMap.get(label) || 0 };
+            })
+          : Array.from(datasetMap.entries()).map(([label, count]) => ({ label, count }));
 
       return {
         question_id: String(q.id_pregunta),
@@ -74,9 +94,15 @@ export class GenerateSurveyReportUseCase {
     const stats = new Map<number, Map<string, number>>();
     for (const q of questions) {
       const optionMap = new Map<string, number>();
-      for (const op of q.opciones) {
-        const label = op.etiqueta || op.texto_opcion || String(op.id_opcion_pregunta);
-        optionMap.set(label, 0);
+      if (this.isLikertQuestion(q)) {
+        for (const label of this.getLikertScaleLabels()) {
+          optionMap.set(label, 0);
+        }
+      } else {
+        for (const op of q.opciones) {
+          const label = op.etiqueta || op.texto_opcion || String(op.id_opcion_pregunta);
+          optionMap.set(label, 0);
+        }
       }
       stats.set(q.id_pregunta, optionMap);
     }
@@ -87,9 +113,23 @@ export class GenerateSurveyReportUseCase {
     const map = new Map<number, Map<string, string>>();
     for (const q of questions) {
       const optionMap = new Map<string, string>();
+      if (this.isLikertQuestion(q)) {
+        for (const label of this.getLikertScaleLabels()) {
+          optionMap.set(label, label);
+          optionMap.set(`likert-${label}`, label);
+        }
+      }
       for (const op of q.opciones) {
-        const label = op.etiqueta || op.texto_opcion || String(op.id_opcion_pregunta);
+        const label = this.isLikertQuestion(q)
+          ? this.normalizeLikertLabel(op.etiqueta || op.texto_opcion || String(op.id_opcion_pregunta))
+          : (op.etiqueta || op.texto_opcion || String(op.id_opcion_pregunta));
         optionMap.set(String(op.id_opcion_pregunta), label);
+        if (op.etiqueta) {
+          optionMap.set(op.etiqueta, label);
+        }
+        if (op.texto_opcion && op.texto_opcion !== op.etiqueta) {
+          optionMap.set(op.texto_opcion, label);
+        }
       }
       map.set(q.id_pregunta, optionMap);
     }
@@ -99,13 +139,40 @@ export class GenerateSurveyReportUseCase {
   private resolveLabel(
     optionLabelMap: Map<number, Map<string, string>>,
     questionId: number,
-    valueRaw: any
+    valueRaw: any,
+    isLikert: boolean
   ): string | null {
     if (valueRaw === null || valueRaw === undefined) return null;
-    const key = String(valueRaw);
+    const key = isLikert ? this.normalizeLikertLabel(String(valueRaw)) : String(valueRaw);
     const map = optionLabelMap.get(questionId);
     if (map && map.has(key)) return map.get(key) || null;
     return key;
+  }
+
+  private isLikertQuestion(question: QuestionWithOptions): boolean {
+    return (question.tipo_pregunta || '').toLowerCase().includes('likert');
+  }
+
+  private getLikertQuestionIds(questions: QuestionWithOptions[]): Set<number> {
+    const ids = new Set<number>();
+    for (const q of questions) {
+      if (this.isLikertQuestion(q)) ids.add(q.id_pregunta);
+    }
+    return ids;
+  }
+
+  private getLikertScaleLabels(): string[] {
+    return ['1', '2', '3', '4', '5'];
+  }
+
+  private normalizeLikertLabel(value: string): string {
+    const normalized = value.trim().toLowerCase();
+    if (normalized.startsWith('likert-')) {
+      const suffix = normalized.replace('likert-', '');
+      if (/^[1-5]$/.test(suffix)) return suffix;
+    }
+    if (/^[1-5]$/.test(normalized)) return normalized;
+    return value;
   }
 
   private getChartType(question: QuestionWithOptions): string {
