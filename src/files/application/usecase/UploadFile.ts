@@ -2,6 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import { generateStoragePath, generateUniqueFilename } from '../../../config/multer';
 
+export interface UploadFileResult {
+  uuid: string;
+  relativePath: string;
+}
+
 export class UploadFile {
   async execute(
     fileBuffer: Buffer,
@@ -9,7 +14,7 @@ export class UploadFile {
     _mimeType: string,
     _size: number,
     uploadedBy?: number
-  ): Promise<string> {
+  ): Promise<UploadFileResult> {
     const { uuid, filename } = generateUniqueFilename(originalName);
 
     const storagePath = generateStoragePath(uploadedBy);
@@ -24,7 +29,13 @@ export class UploadFile {
 
     try {
       fs.writeFileSync(fullFilePath, fileBuffer);
-      return uuid;
+      // Retornar la ruta relativa normalizada para usarla en la URL
+      const relativePath = path.relative(process.cwd(), fullFilePath).replace(/\\/g, '/');
+      
+      return {
+        uuid,
+        relativePath
+      };
     } catch (error) {
       if (fs.existsSync(fullFilePath)) {
         fs.unlinkSync(fullFilePath);
