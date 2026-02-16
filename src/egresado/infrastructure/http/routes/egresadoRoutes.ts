@@ -12,6 +12,7 @@ import { requestLogger } from '../../../../core/middleware/requestLogger';
 import { getProgramasEducativosController } from '../controller/getProgramasEducativosController';
 import { getEgresadoWithAchievementsController } from '../controller/getEgresadoWithAchievementsController';
 import { getAllEgresadosWithAchievementsController } from '../controller/getAllEgresadosWithAchievementsController';
+import { multerConfig } from '../../../../config/multer';
 
 const router = Router();
 router.use(requestLogger);
@@ -36,6 +37,29 @@ router.use(requestLogger);
  *     requestBody:
  *       required: true
  *       content:
+ *         'multipart/form-data':
+ *           schema:
+ *             type: object
+ *             properties:
+ *               data:
+ *                 type: string
+ *                 description: JSON API en texto (opcional si envías campos directos)
+ *                 example: '{"type":"egresados","id":"50","attributes":{"email":"mi_nuevo_correo@gmail.com","fecha_nacimiento":"1999-05-20"}}'
+ *               email:
+ *                 type: string
+ *                 example: mi_nuevo_correo@gmail.com
+ *               fecha_nacimiento:
+ *                 type: string
+ *                 format: date
+ *                 example: "1999-05-20"
+ *               imagen_egresado:
+ *                 type: string
+ *                 format: uri
+ *                 example: https://miservidor.com/uploads/foto_perfil_50.jpg
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: Imagen de perfil a subir
  *         application/json:
  *           schema:
  *             type: object
@@ -86,7 +110,11 @@ router.use(requestLogger);
  *       403:
  *         description: No autorizado para editar este perfil
  */
-router.patch('/:id/perfil', updatePerfilController(dependencies.updateEgresadoPerfil));
+router.patch(
+	'/:id/perfil',
+	multerConfig.single('file'),
+	updatePerfilController(dependencies.updateEgresadoPerfil, dependencies.uploadFile)
+);
 
 /**
  * @openapi
@@ -119,6 +147,48 @@ router.patch('/:id/perfil', updatePerfilController(dependencies.updateEgresadoPe
  *     requestBody:
  *       required: true
  *       content:
+ *         'multipart/form-data':
+ *           schema:
+ *             type: object
+ *             properties:
+ *               data:
+ *                 type: string
+ *                 description: JSON API en texto (opcional si envías campos directos)
+ *                 example: '{"type":"egresados","id":"50","attributes":{"nombre":"Juan Carlos","primer_apellido":"Pérez","email":"mi_nuevo_correo@gmail.com"}}'
+ *               nombre:
+ *                 type: string
+ *                 example: "Juan Carlos"
+ *               primer_apellido:
+ *                 type: string
+ *                 example: "Pérez"
+ *               segundo_apellido:
+ *                 type: string
+ *                 example: "García"
+ *               email:
+ *                 type: string
+ *                 example: mi_nuevo_correo@gmail.com
+ *               fecha_nacimiento:
+ *                 type: string
+ *                 format: date
+ *                 example: "1999-05-20"
+ *               imagen_egresado:
+ *                 type: string
+ *                 format: uri
+ *                 example: https://miservidor.com/uploads/foto_perfil_50.jpg
+ *               id_programa_educativo:
+ *                 type: integer
+ *                 example: 1
+ *               id_periodo:
+ *                 type: integer
+ *                 example: 5
+ *               id_estado:
+ *                 type: integer
+ *                 example: 3
+ *                 description: "1=pendiente, 2=rechazado, 3=aprobado"
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: Imagen de perfil a subir
  *         application/json:
  *           schema:
  *             type: object
@@ -189,7 +259,11 @@ router.patch('/:id/perfil', updatePerfilController(dependencies.updateEgresadoPe
  *       403:
  *         description: No autorizado para editar este perfil
  */
-router.patch('/:id/perfil-completo', updatePerfilCompletoController(dependencies.updatePerfilCompleto));
+router.patch(
+	'/:id/perfil-completo',
+	multerConfig.single('file'),
+	updatePerfilCompletoController(dependencies.updatePerfilCompleto, dependencies.uploadFile)
+);
 
 /**
  * @openapi
@@ -215,6 +289,50 @@ router.patch('/:id/perfil-completo', updatePerfilCompletoController(dependencies
  *     requestBody:
  *       required: true
  *       content:
+ *         'multipart/form-data':
+ *           schema:
+ *             type: object
+ *             properties:
+ *               data:
+ *                 type: string
+ *                 description: JSON API en texto (opcional si envías campos directos)
+ *                 example: '{"type":"egresados","id":"50","attributes":{"nombre":"Juan","primer_apellido":"Pérez","email":"juan.perez@example.com"}}'
+ *               nombre:
+ *                 type: string
+ *                 example: "Juan"
+ *               primer_apellido:
+ *                 type: string
+ *                 example: "Pérez"
+ *               segundo_apellido:
+ *                 type: string
+ *                 example: "García"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "juan.perez@example.com"
+ *               fecha_nacimiento:
+ *                 type: string
+ *                 format: date
+ *                 example: "1995-05-20"
+ *               imagen_egresado:
+ *                 type: string
+ *                 format: uri
+ *                 example: "https://servidor.com/foto.jpg"
+ *               id_programa_educativo:
+ *                 type: integer
+ *                 example: 1
+ *               id_periodo:
+ *                 type: integer
+ *                 example: 5
+ *               id_estado:
+ *                 type: integer
+ *                 description: "1=Aprobado, 2=Pendiente, 3=Rechazado"
+ *                 enum: [1, 2, 3]
+ *                 example: 1
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: Imagen de perfil a subir
  *         application/json:
  *           schema:
  *             type: object
@@ -288,7 +406,11 @@ router.patch('/:id/perfil-completo', updatePerfilCompletoController(dependencies
  *       404:
  *         description: Egresado no encontrado
  */
-router.patch('/admin/:id/perfil-completo', updatePerfilCompletoAdminController(dependencies.updatePerfilCompletoAdmin));
+router.patch(
+	'/admin/:id/perfil-completo',
+	multerConfig.single('file'),
+	updatePerfilCompletoAdminController(dependencies.updatePerfilCompletoAdmin, dependencies.uploadFile)
+);
 
 /**
  * @openapi
