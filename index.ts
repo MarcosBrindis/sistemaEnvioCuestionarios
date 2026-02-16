@@ -32,6 +32,7 @@ import distributionRouter from './src/distribution/infrastructure/http/router/di
 import analyticsRouter from './src/analytics/infrastructure/http/router/analytics.router';
 import datosDomiciliariosRoutes from './src/datosDomiciliarios/infrastructure/http/routes/datosDomiciliariosRoutes';
 import datosLaboralesRoutes from './src/datosLaborales/infrastructure/http/routes/datosLaboralesRoutes';
+import fileRoutes from './src/files/infrastructure/http/router/fileRoutes';
 
 
 const app = express();
@@ -88,6 +89,7 @@ async function startServer() {
     app.use('/api/egresado', egresadoRoutes)
     app.use('/api/datos-domiciliarios', datosDomiciliariosRoutes);
     app.use('/api/datos-laborales', datosLaboralesRoutes);
+    app.use('/api/files', fileRoutes);
     app.use('/api/grupo', groupRoutes)
     app.use('/api/auth', authRoutes);
     app.use('/api', importarMiembrosRoutes);
