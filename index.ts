@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
 import { swaggerUiSetup } from './src/config/swagger';
 import swaggerUi from "swagger-ui-express";
 import session from 'express-session';
@@ -75,6 +76,9 @@ async function startServer() {
             maxAge: Number(process.env.SESSION_COOKIE_MAXAGE)
         }
     }));
+
+    // Servir archivos estáticos desde la carpeta uploads
+    app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
     // Rutas
     app.use('/api/tipo-pregunta', typeQuestionRoutes);
