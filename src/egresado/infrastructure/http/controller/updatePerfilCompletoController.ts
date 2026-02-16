@@ -49,14 +49,14 @@ export const updatePerfilCompletoController = (
       : undefined;
 
     if (req.file) {
-      const fileId = await uploadFile.execute(
+      const result = await uploadFile.execute(
         req.file.buffer,
         req.file.originalname,
         req.file.mimetype,
         req.file.size,
         sessionEgresadoId
       );
-      imagen_egresado = `${req.protocol}://${req.get('host')}/api/files/${fileId}`;
+      imagen_egresado = `${req.protocol}://${req.get('host')}/uploads/${result.relativePath}`;
     }
 
     const result = await updatePerfilCompleto.execute({

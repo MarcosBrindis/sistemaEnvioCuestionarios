@@ -22,7 +22,7 @@ export const uploadFileController = (uploadFile: UploadFile) => async (
     const uploadedBy = req.session.user?.id;
 
     // Ejecutar caso de uso
-    const fileId = await uploadFile.execute(
+    const result = await uploadFile.execute(
       req.file.buffer,
       req.file.originalname,
       req.file.mimetype,
@@ -30,13 +30,13 @@ export const uploadFileController = (uploadFile: UploadFile) => async (
       uploadedBy
     );
 
-    // Construir URL de acceso al archivo
-    const fileUrl = `${req.protocol}://${req.get('host')}/api/files/${fileId}`;
+    // Construir URL de acceso al archivo usando la ruta estática
+    const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${result.relativePath}`;
 
     return res.status(201).json({
       data: {
         type: 'files',
-        id: fileId,
+        id: result.uuid,
         attributes: {
           original_name: req.file.originalname,
           mime_type: req.file.mimetype,
