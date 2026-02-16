@@ -13,6 +13,7 @@ import { GetEgresadoWithAchievements } from '../application/usecase/GetEgresadoW
 import { GetAllEgresadosWithAchievements } from '../application/usecase/GetAllEgresadosWithAchievements';
 import { academicAchievementRepository } from '../../academicAchievement/infrastructure/dependencies';
 import { laborAchievementRepository } from '../../laborAchievement/infrastructure/dependencies';
+import { fileDependencies } from '../../files/infrastructure/dependencies';
 
 const egresadoRepo = new EgresadoRepositoryMySQL();
 const periodoRepo = new PeriodoRepositoryMySQL();
@@ -43,6 +44,7 @@ export const dependencies = {
   updateEgresadoPerfil: new UpdateEgresadoPerfil(egresadoRepo),
   updatePerfilCompleto: new UpdatePerfilCompleto(egresadoRepo),
   updatePerfilCompletoAdmin: new UpdatePerfilCompletoAdmin(egresadoRepo),
+  uploadFile: fileDependencies.uploadFile,
   updateEstadoEgresado: new UpdateEstadoEgresado(egresadoRepo),
   getEgresadoWithAchievements: new GetEgresadoWithAchievements(
     egresadoRepo,
