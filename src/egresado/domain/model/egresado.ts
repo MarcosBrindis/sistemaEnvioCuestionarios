@@ -7,6 +7,7 @@ export interface Egresado {
   curp: string;
   email: string | null;
   imagen_egresado: string | null;
+  sinopsis: string | null;
   fecha_nacimiento: string | null;
   is_active: boolean;
   id_estado: number;
