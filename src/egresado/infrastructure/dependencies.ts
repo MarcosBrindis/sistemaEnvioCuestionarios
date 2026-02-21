@@ -11,8 +11,6 @@ import { ProgramaEducativoRepositoryMySQL } from './database/mysql/ProgramaEduca
 import { GetProgramasEducativos } from '../application/usecase/GetProgramasEducativos';
 import { GetEgresadoWithAchievements } from '../application/usecase/GetEgresadoWithAchievements';
 import { GetAllEgresadosWithAchievements } from '../application/usecase/GetAllEgresadosWithAchievements';
-import { academicAchievementRepository } from '../../academicAchievement/infrastructure/dependencies';
-import { laborAchievementRepository } from '../../laborAchievement/infrastructure/dependencies';
 import { fileDependencies } from '../../files/infrastructure/dependencies';
 
 const egresadoRepo = new EgresadoRepositoryMySQL();
@@ -48,13 +46,11 @@ export const dependencies = {
   updateEstadoEgresado: new UpdateEstadoEgresado(egresadoRepo),
   getEgresadoWithAchievements: new GetEgresadoWithAchievements(
     egresadoRepo,
-    academicAchievementRepository,
-    laborAchievementRepository
+    programaRepo
   ),
   getAllEgresadosWithAchievements: new GetAllEgresadosWithAchievements(
     egresadoRepo,
-    academicAchievementRepository,
-    laborAchievementRepository
+    programaRepo
   )
 };
 
