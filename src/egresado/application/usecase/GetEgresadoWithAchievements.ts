@@ -1,12 +1,10 @@
 import { EgresadoRepository } from '../../domain/port/egresadoRepository';
-import { AcademicAchievementRepository } from '../../../academicAchievement/domain/port/academicAchievementRepository';
-import { LaborAchievementRepository } from '../../../laborAchievement/domain/port/laborAchievementRepository';
+import { ProgramaEducativoRepository } from '../../domain/port/egresadoRepository';
 
 export class GetEgresadoWithAchievements {
   constructor(
     private egresadoRepo: EgresadoRepository,
-    private academicRepo: AcademicAchievementRepository,
-    private laborRepo: LaborAchievementRepository
+    private programaRepo: ProgramaEducativoRepository
   ) {}
 
   async execute(idEgresado: number) {
@@ -16,10 +14,9 @@ export class GetEgresadoWithAchievements {
       throw new Error('Egresado no encontrado');
     }
 
-    const [academicAchievements, laborAchievements] = await Promise.all([
-      this.academicRepo.findAllByEgresado(idEgresado),
-      this.laborRepo.findAllByEgresado(idEgresado)
-    ]);
+    const programaEducativo = egresado.id_programa_educativo
+      ? await this.programaRepo.findByIdOrNombre(String(egresado.id_programa_educativo))
+      : null;
 
     return {
       egresado: {
@@ -31,14 +28,14 @@ export class GetEgresadoWithAchievements {
         curp: egresado.curp,
         email: egresado.email,
         imagen_egresado: egresado.imagen_egresado,
+        sinopsis: egresado.sinopsis,
         fecha_nacimiento: egresado.fecha_nacimiento,
         is_active: egresado.is_active,
         id_estado: egresado.id_estado,
         id_programa_educativo: egresado.id_programa_educativo,
+        programa_educativo: programaEducativo?.nombre ?? null,
         id_periodo: egresado.id_periodo
-      },
-      logros_academicos: academicAchievements,
-      logros_laborales: laborAchievements
+      }
     };
   }
 }

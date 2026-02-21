@@ -207,6 +207,7 @@ export class SyncEgresadosFromPlatinum {
           curp: egresadoExt.CURP.trim(),
           email: egresadoExt.CorreoElectronico?.trim() || null,
           imagen_egresado: null,
+          sinopsis: null,
           fecha_nacimiento: isValidDate(egresadoExt.FechaNacimiento) ? egresadoExt.FechaNacimiento : null,
           is_active: true,
           id_estado: 1, // Pendiente por defecto

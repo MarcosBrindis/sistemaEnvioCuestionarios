@@ -44,7 +44,7 @@ export class EgresadoRepositoryMySQL extends BaseEgresadoRepository {
 
   async updatePerfilCompleto(
     id: number,
-    data: Partial<Pick<Egresado, 'nombre' | 'primer_apellido' | 'segundo_apellido' | 'email' | 'fecha_nacimiento' | 'imagen_egresado' | 'id_programa_educativo' | 'id_periodo' | 'id_estado'>>
+    data: Partial<Pick<Egresado, 'nombre' | 'primer_apellido' | 'segundo_apellido' | 'email' | 'fecha_nacimiento' | 'imagen_egresado' | 'id_programa_educativo' | 'id_periodo' | 'id_estado' | 'sinopsis'>>
   ): Promise<Egresado> {
     const campos: string[] = [];
     const valores: any[] = [];
@@ -72,6 +72,10 @@ export class EgresadoRepositoryMySQL extends BaseEgresadoRepository {
     if (data.imagen_egresado !== undefined) {
       campos.push('imagen_egresado = ?');
       valores.push(data.imagen_egresado);
+    }
+    if (data.sinopsis !== undefined) {
+      campos.push('sinopsis = ?');
+      valores.push(data.sinopsis);
     }
     if (data.id_programa_educativo !== undefined) {
       campos.push('id_programa_educativo = ?');

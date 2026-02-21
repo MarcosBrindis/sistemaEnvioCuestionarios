@@ -8,6 +8,8 @@ import { updatePerfilController } from '../controller/updatePerfilController';
 import { updatePerfilCompletoController } from '../controller/updatePerfilCompletoController';
 import { updatePerfilCompletoAdminController } from '../controller/updatePerfilCompletoAdminController';
 import { updateEstadoEgresadoController } from '../controller/updateEstadoEgresadoController';
+import { updateEgresadoSinopsisController } from '../controller/updateEgresadoSinopsisController';
+import { getEgresadoSinopsisController } from '../controller/getEgresadoSinopsisController';
 import { requestLogger } from '../../../../core/middleware/requestLogger';
 import { getProgramasEducativosController } from '../controller/getProgramasEducativosController';
 import { getEgresadoWithAchievementsController } from '../controller/getEgresadoWithAchievementsController';
@@ -485,6 +487,121 @@ router.patch('/:id/estado', updateEstadoEgresadoController(dependencies.updateEs
 
 /**
  * @openapi
+ * /api/egresado/{id}/sinopsis:
+ *   get:
+ *     tags:
+ *       - Egresados
+ *     summary: Obtener sinopsis profesional del egresado
+ *     description: |
+ *       Obtiene solo la sinopsis (resumen profesional) general del egresado de forma optimizada.
+ *       Ideal para mostrar en interfaces de logros sin cargar todos los datos del perfil.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del egresado
+ *     responses:
+ *       200:
+ *         description: Sinopsis obtenida exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     type:
+ *                       type: string
+ *                       example: egresados-sinopsis
+ *                     id:
+ *                       type: string
+ *                     attributes:
+ *                       type: object
+ *                       properties:
+ *                         sinopsis:
+ *                           type: string
+ *                           nullable: true
+ *                           example: "Profesional con maestría en Ciencia de Datos..."
+ *       404:
+ *         description: Egresado no encontrado
+ *       500:
+ *         description: Error interno del servidor
+ */
+router.get('/:id/sinopsis', getEgresadoSinopsisController);
+
+/**
+ * @openapi
+ * /api/egresado/{id}/sinopsis:
+ *   patch:
+ *     tags:
+ *       - Egresados
+ *     summary: Actualizar sinopsis profesional del egresado
+ *     description: |
+ *       Permite actualizar la sinopsis (resumen profesional) general del egresado.
+ *       Este campo es de uso general para mostrar en la interfaz del perfil e interfaces de logros.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del egresado a actualizar
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               data:
+ *                 type: object
+ *                 properties:
+ *                   type:
+ *                     type: string
+ *                     example: egresados
+ *                   attributes:
+ *                     type: object
+ *                     properties:
+ *                       sinopsis:
+ *                         type: string
+ *                         nullable: true
+ *                         example: "Profesional con maestría en Ciencia de Datos y experiencia en desarrollo de software..."
+ *     responses:
+ *       200:
+ *         description: Sinopsis actualizada exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     type:
+ *                       type: string
+ *                       example: egresados
+ *                     id:
+ *                       type: string
+ *                     attributes:
+ *                       type: object
+ *                       properties:
+ *                         sinopsis:
+ *                           type: string
+ *                           nullable: true
+ *       400:
+ *         description: Datos inválidos en la solicitud
+ *       404:
+ *         description: Egresado no encontrado
+ *       500:
+ *         description: Error interno del servidor
+ */
+router.patch('/:id/sinopsis', updateEgresadoSinopsisController);
+
+/**
+ * @openapi
  * /api/egresado/programas-educativos:
  *   get:
  *     tags:
@@ -704,10 +821,10 @@ router.post('/actualizar-periodos', actualizarPeriodos);
  *   get:
  *     tags:
  *       - Egresados
- *     summary: Obtener perfil completo del egresado con sus logros
+ *     summary: Obtener perfil completo del egresado
  *     description: |
- *       Devuelve toda la información del egresado (nombre, correo, carrera, foto, etc.)
- *       junto con todos sus logros académicos y laborales en una sola respuesta.
+ *       Devuelve la información del egresado en formato legible.
+ *       Incluye el nombre del programa educativo además de su identificador.
  *     parameters:
  *       - in: path
  *         name: id
@@ -773,46 +890,14 @@ router.post('/actualizar-periodos', actualizarPeriodos);
  *                           type: integer
  *                           nullable: true
  *                           example: 5
+ *                         programa_educativo:
+ *                           type: string
+ *                           nullable: true
+ *                           example: Ingeniería Software
  *                         id_periodo:
  *                           type: integer
  *                           nullable: true
  *                           example: 12
- *                     logros_academicos:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           id_academic_achievement:
- *                             type: integer
- *                           name:
- *                             type: string
- *                           institution:
- *                             type: string
- *                           date:
- *                             type: string
- *                       example:
- *                         - id_academic_achievement: 1
- *                           name: Maestría en Ciencias de la Computación
- *                           institution: Universidad Tecnológica
- *                           date: 2023-06-15
- *                     logros_laborales:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           id_labor_achievement:
- *                             type: integer
- *                           company:
- *                             type: string
- *                           position:
- *                             type: string
- *                           date:
- *                             type: string
- *                       example:
- *                         - id_labor_achievement: 1
- *                           company: Tech Solutions
- *                           position: Desarrollador Senior
- *                           date: 2022-01-15
  *       400:
  *         description: ID inválido
  *         content:
@@ -850,10 +935,10 @@ router.get('/:id/perfil-completo', getEgresadoWithAchievements);
  *   get:
  *     tags:
  *       - Egresados
- *     summary: Obtener todos los perfiles completos de egresados con sus logros
+ *     summary: Obtener todos los perfiles completos de egresados
  *     description: |
- *       Devuelve toda la información de todos los egresados (nombre, correo, carrera, foto, etc.)
- *       junto con todos sus logros académicos y laborales en una sola respuesta.
+ *       Devuelve la información de todos los egresados en formato legible.
+ *       Incluye el nombre del programa educativo además de su identificador.
  *     responses:
  *       200:
  *         description: Perfiles completos de egresados obtenidos exitosamente
@@ -914,46 +999,14 @@ router.get('/:id/perfil-completo', getEgresadoWithAchievements);
  *                             type: integer
  *                             nullable: true
  *                             example: 5
+ *                           programa_educativo:
+ *                             type: string
+ *                             nullable: true
+ *                             example: Ingeniería en Software
  *                           id_periodo:
  *                             type: integer
  *                             nullable: true
  *                             example: 12
- *                       logros_academicos:
- *                         type: array
- *                         items:
- *                           type: object
- *                           properties:
- *                             id_academic_achievement:
- *                               type: integer
- *                             name:
- *                               type: string
- *                             institution:
- *                               type: string
- *                             date:
- *                               type: string
- *                         example:
- *                           - id_academic_achievement: 1
- *                             name: Maestría en Ciencias de la Computación
- *                             institution: Universidad Tecnológica
- *                             date: 2023-06-15
- *                       logros_laborales:
- *                         type: array
- *                         items:
- *                           type: object
- *                           properties:
- *                             id_labor_achievement:
- *                               type: integer
- *                             company:
- *                               type: string
- *                             position:
- *                               type: string
- *                             date:
- *                               type: string
- *                         example:
- *                           - id_labor_achievement: 1
- *                             company: Tech Solutions
- *                             position: Desarrollador Senior
- *                             date: 2022-01-15
  *                 total:
  *                   type: integer
  *                   description: Cantidad total de egresados retornados
