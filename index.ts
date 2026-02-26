@@ -18,6 +18,7 @@ import respuestaRoutes from './src/respuesta/infrastructure/http/router/respuest
 import academicAchievementRoutes from './src/academicAchievement/infrastructure/http/router/academicAchievementRoutes';
 import groupRoutes from './src/group/infrastructure/http/router/groupRoutes';
 import authRoutes from './src/auth/infrastructure/http/router/authRoutes';
+import { createUsuariosInternosRoutes } from './src/usuariosInternos/infrastructure/http/routes/usuariosInternosRoutes';
 import importarMiembrosRoutes from './src/importacionMiembros/infrastructure/http/router/importarMiembrosRoutes';
 import suscripcionRoutes from './src/egresado-suscripcion/infrastructure/http/router/suscripcionRoutes';
 import Survey from './src/surveys/infrastructure/http/router/surveyRouter';
@@ -96,6 +97,7 @@ async function startServer() {
     app.use('/api/files', fileRoutes);
     app.use('/api/grupo', groupRoutes)
     app.use('/api/auth', authRoutes);
+    app.use('/api/admin/usuarios-internos', createUsuariosInternosRoutes());
     app.use('/api', importarMiembrosRoutes);
     app.use('/api', suscripcionRoutes);
 
