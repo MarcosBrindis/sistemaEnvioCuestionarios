@@ -1,4 +1,3 @@
-// src/config/swagger.ts
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import path from "path";
@@ -597,8 +596,76 @@ const options: swaggerJsdoc.Options = {
             }
           }
         },
+        CreateInternalUserRequest: {
+          type: "object",
+          required: ["nombre", "email", "password", "id_rol"],
+          properties: {
+            nombre: { type: "string", example: "Juan Pérez", description: "Nombre completo del usuario" },
+            email: { type: "string", format: "email", example: "juan.perez@ejemplo.com", description: "Correo electrónico único" },
+            password: { type: "string", format: "password", example: "MySecurePass123", description: "Contraseña (mínimo 8 caracteres, una mayúscula, un número)" },
+            id_rol: { type: "number", example: 2, description: "ID del rol (2=director_vinculacion, 3=director_programa_educativo)" }
+          }
+        },
+        UpdateInternalUserRequest: {
+          type: "object",
+          properties: {
+            nombre: { type: "string", example: "Juan Carlos Pérez", description: "Nombre completo del usuario" },
+            email: { type: "string", format: "email", example: "juancarlos.perez@ejemplo.com", description: "Correo electrónico único" },
+            id_rol: { type: "number", example: 2, description: "ID del rol" },
+            is_active: { type: "boolean", example: true, description: "Estado activo/inactivo" }
+          }
+        },
+        ResetPasswordRequest: {
+          type: "object",
+          required: ["new_password"],
+          properties: {
+            new_password: { type: "string", format: "password", example: "NewSecurePass456", description: "Nueva contraseña (mínimo 8 caracteres, una mayúscula, un número)" }
+          }
+        },
+        AssignProgramsRequest: {
+          type: "object",
+          required: ["id_programas"],
+          properties: {
+            id_programas: {
+              type: "array",
+              minItems: 1,
+              maxItems: 1,
+              items: { type: "number" },
+              example: [3],
+              description: "Array con un único ID de programa educativo"
+            }
+          }
+        },
+        InternalUserResponse: {
+          type: "object",
+          properties: {
+            id_usuario: { type: "number", example: 1 },
+            nombre: { type: "string", example: "Juan Pérez" },
+            email: { type: "string", format: "email", example: "juan.perez@ejemplo.com" },
+            id_rol: { type: "number", example: 2 },
+            rol_nombre: { type: "string", enum: ["super_admin", "director_vinculacion", "director_programa_educativo"], example: "director_vinculacion" },
+            is_active: { type: "boolean", example: true },
+            created_at: { type: "string", format: "date-time", example: "2026-02-22T10:30:00Z" },
+            updated_at: { type: "string", format: "date-time", example: "2026-02-22T10:30:00Z" }
+          }
+        },
+        ProgramAssignmentResponse: {
+          type: "object",
+          properties: {
+            id_programa: { type: "number", example: 1 },
+            nombre_programa: { type: "string", example: "Ingeniería en Sistemas" }
+          }
+        }
       },
-    },
+      securitySchemes: {
+        sessionAuth: {
+          type: "apiKey",
+          in: "cookie",
+          name: "connect.sid",
+          description: "Session cookie authentication"
+        }
+      }
+    }
   },
   apis: [
     `${path.join(__dirname, "../../**/*.ts")}`,
