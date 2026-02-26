@@ -1,8 +1,7 @@
 import { Egresado } from '../../../egresado/domain/model/egresado';
+import { InternalUserAuth } from '../model/internalUser';
 
 export interface AuthRepository {
-  /**
-   * @returns El egresado si las credenciales son correctas, null si no.
-   */
-  validateCredentials(curp: string): Promise<Egresado | null>;
+  validateEgresadoCredentials(curp: string): Promise<Egresado | null>;
+  validateInternalCredentials(email: string): Promise<InternalUserAuth | null>;
 }

@@ -15,6 +15,13 @@ import { getProgramasEducativosController } from '../controller/getProgramasEduc
 import { getEgresadoWithAchievementsController } from '../controller/getEgresadoWithAchievementsController';
 import { getAllEgresadosWithAchievementsController } from '../controller/getAllEgresadosWithAchievementsController';
 import { multerConfig } from '../../../../config/multer';
+import { authEgresado } from '../../../../core/middleware/authEgresado';
+import {
+	requireAuth,
+	requireProgramScopeOnEgresadoParam,
+	requireRoles,
+	requireSelfOrRoles,
+} from '../../../../core/middleware/authorization';
 
 const router = Router();
 router.use(requestLogger);
@@ -114,6 +121,7 @@ router.use(requestLogger);
  */
 router.patch(
 	'/:id/perfil',
+	authEgresado,
 	multerConfig.single('file'),
 	updatePerfilController(dependencies.updateEgresadoPerfil, dependencies.uploadFile)
 );
@@ -263,6 +271,7 @@ router.patch(
  */
 router.patch(
 	'/:id/perfil-completo',
+	authEgresado,
 	multerConfig.single('file'),
 	updatePerfilCompletoController(dependencies.updatePerfilCompleto, dependencies.uploadFile)
 );
@@ -273,6 +282,7 @@ router.patch(
  *   patch:
  *     tags:
  *       - Egresados - Admin
+ *       - Admin
  *     summary: Actualizar perfil completo de un egresado (Admin)
  *     description: |
  *       Permite que un administrador actualice el perfil completo de cualquier egresado.
@@ -410,6 +420,8 @@ router.patch(
  */
 router.patch(
 	'/admin/:id/perfil-completo',
+	requireAuth,
+	requireRoles(['super_admin', 'director_vinculacion']),
 	multerConfig.single('file'),
 	updatePerfilCompletoAdminController(dependencies.updatePerfilCompletoAdmin, dependencies.uploadFile)
 );
@@ -420,6 +432,7 @@ router.patch(
  *   patch:
  *     tags:
  *       - Egresados
+ *       - Admin
  *     summary: Actualizar estado del egresado
  *     description: |
  *       Actualiza el estado de un egresado. 
@@ -483,7 +496,13 @@ router.patch(
  *       404:
  *         description: Egresado no encontrado
  */
-router.patch('/:id/estado', updateEstadoEgresadoController(dependencies.updateEstadoEgresado));
+router.patch(
+	'/:id/estado',
+	requireAuth,
+	requireRoles(['super_admin', 'director_vinculacion', 'director_programa_educativo']),
+	requireProgramScopeOnEgresadoParam('id'),
+	updateEstadoEgresadoController(dependencies.updateEstadoEgresado)
+);
 
 /**
  * @openapi
@@ -636,6 +655,7 @@ router.get('/programas-educativos', getProgramasEducativosController(dependencie
  *   post:
  *     tags:
  *       - Egresados
+ *       - Admin
  *     summary: Sincronizar egresados desde el servicio externo Platinum
  *     description: |
  *       Obtiene egresados del servicio externo Platinum y los sincroniza con la base de datos local.
@@ -722,7 +742,7 @@ router.get('/programas-educativos', getProgramasEducativosController(dependencie
  */
 const syncEgresados = syncEgresadosController(dependencies.syncEgresadosFromPlatinum);
 
-router.post('/sync', syncEgresados);
+router.post('/sync', requireAuth, requireRoles(['super_admin', 'director_vinculacion']), syncEgresados);
 
 /**
  * @openapi
@@ -730,6 +750,7 @@ router.post('/sync', syncEgresados);
  *   post:
  *     tags:
  *       - Egresados
+ *       - Admin
  *     summary: Actualizar el periodo de egreso de los egresados existentes
  *     description: |
  *       Obtiene los egresados del servicio externo Platinum y actualiza el campo id_periodo
@@ -813,7 +834,7 @@ router.post('/sync', syncEgresados);
  */
 const actualizarPeriodos = actualizarPeriodosController(dependencies.actualizarPeriodosEgresados);
 
-router.post('/actualizar-periodos', actualizarPeriodos);
+router.post('/actualizar-periodos', requireAuth, requireRoles(['super_admin', 'director_vinculacion']), actualizarPeriodos);
 
 /**
  * @openapi
@@ -927,7 +948,13 @@ router.post('/actualizar-periodos', actualizarPeriodos);
  */
 const getEgresadoWithAchievements = getEgresadoWithAchievementsController(dependencies.getEgresadoWithAchievements);
 
-router.get('/:id/perfil-completo', getEgresadoWithAchievements);
+router.get(
+	'/:id/perfil-completo',
+	requireAuth,
+	requireSelfOrRoles('id', ['super_admin', 'director_vinculacion', 'director_programa_educativo']),
+	requireProgramScopeOnEgresadoParam('id'),
+	getEgresadoWithAchievements
+);
 
 /**
  * @openapi
@@ -1027,7 +1054,12 @@ router.get('/:id/perfil-completo', getEgresadoWithAchievements);
  */
 const getAllEgresadosWithAchievements = getAllEgresadosWithAchievementsController(dependencies.getAllEgresadosWithAchievements);
 
-router.get('/perfiles-completos', getAllEgresadosWithAchievements);
+router.get(
+	'/perfiles-completos',
+	requireAuth,
+	requireRoles(['super_admin', 'director_vinculacion', 'director_programa_educativo']),
+	getAllEgresadosWithAchievements
+);
 
 // Rutas para gestión de trayectoria (logros)
 router.use('/:id/logros-laborales', laborAchievementRoutes);
