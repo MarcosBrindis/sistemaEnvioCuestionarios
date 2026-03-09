@@ -38,6 +38,8 @@ export abstract class BaseEgresadoRepository implements EgresadoRepository {
     id_programa_educativo?: number;
     id_periodo_egreso?: number;
     cohorte?: number;
+    prefijo_matricula?: string;
+    estatus?: number | string;
     busqueda?: string;
   }): Promise<Egresado[]> {
     return Promise.reject(new Error('Method not implemented'));

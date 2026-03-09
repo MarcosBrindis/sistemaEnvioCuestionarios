@@ -224,13 +224,15 @@ export class EgresadoRepositoryMySQL extends BaseEgresadoRepository {
     id_programa_educativo?: number;
     id_periodo_egreso?: number;
     cohorte?: number;
-    prefijo_matricula?: string; // Ejemplo: '113' (3 primeros dígitos de matrícula)
+    prefijo_matricula?: string;
+    estatus?: number | string;
     busqueda?: string;
   }): Promise<any[]> {
     let sql = `SELECT e.*, p.cohorte AS cohorte_egreso, pe.nombre AS programa_educativo
       FROM egresado e
       LEFT JOIN periodo_graduado p ON e.id_periodo = p.id_periodo
       LEFT JOIN programa_educativo pe ON e.id_programa_educativo = pe.id_programa_educativo
+      LEFT JOIN estado_egresado est ON e.id_estado = est.id_estado
       WHERE 1=1`;
     const params: any[] = [];
     if (filtros.id_programa_educativo) {
@@ -248,6 +250,15 @@ export class EgresadoRepositoryMySQL extends BaseEgresadoRepository {
     if (filtros.prefijo_matricula) {
       sql += ' AND e.matricula LIKE ?';
       params.push(`${filtros.prefijo_matricula}%`);
+    }
+    if (filtros.estatus !== undefined && filtros.estatus !== '') {
+      if (typeof filtros.estatus === 'number') {
+        sql += ' AND e.id_estado = ?';
+        params.push(filtros.estatus);
+      } else {
+        sql += ' AND LOWER(est.nombre) = LOWER(?)';
+        params.push(filtros.estatus.trim());
+      }
     }
     if (filtros.busqueda) {
       sql += ` AND (e.nombre LIKE ? OR e.primer_apellido LIKE ? OR e.segundo_apellido LIKE ? OR e.matricula LIKE ? OR e.email LIKE ? OR pe.nombre LIKE ?)`;
