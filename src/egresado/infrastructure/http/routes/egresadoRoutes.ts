@@ -8,10 +8,20 @@ import { updatePerfilController } from '../controller/updatePerfilController';
 import { updatePerfilCompletoController } from '../controller/updatePerfilCompletoController';
 import { updatePerfilCompletoAdminController } from '../controller/updatePerfilCompletoAdminController';
 import { updateEstadoEgresadoController } from '../controller/updateEstadoEgresadoController';
+import { updateEgresadoSinopsisController } from '../controller/updateEgresadoSinopsisController';
+import { getEgresadoSinopsisController } from '../controller/getEgresadoSinopsisController';
 import { requestLogger } from '../../../../core/middleware/requestLogger';
 import { getProgramasEducativosController } from '../controller/getProgramasEducativosController';
 import { getEgresadoWithAchievementsController } from '../controller/getEgresadoWithAchievementsController';
 import { getAllEgresadosWithAchievementsController } from '../controller/getAllEgresadosWithAchievementsController';
+import { multerConfig } from '../../../../config/multer';
+import { authEgresado } from '../../../../core/middleware/authEgresado';
+import {
+	requireAuth,
+	requireProgramScopeOnEgresadoParam,
+	requireRoles,
+	requireSelfOrRoles,
+} from '../../../../core/middleware/authorization';
 
 const router = Router();
 router.use(requestLogger);
@@ -36,6 +46,29 @@ router.use(requestLogger);
  *     requestBody:
  *       required: true
  *       content:
+ *         'multipart/form-data':
+ *           schema:
+ *             type: object
+ *             properties:
+ *               data:
+ *                 type: string
+ *                 description: JSON API en texto (opcional si envías campos directos)
+ *                 example: '{"type":"egresados","id":"50","attributes":{"email":"mi_nuevo_correo@gmail.com","fecha_nacimiento":"1999-05-20"}}'
+ *               email:
+ *                 type: string
+ *                 example: mi_nuevo_correo@gmail.com
+ *               fecha_nacimiento:
+ *                 type: string
+ *                 format: date
+ *                 example: "1999-05-20"
+ *               imagen_egresado:
+ *                 type: string
+ *                 format: uri
+ *                 example: https://miservidor.com/uploads/foto_perfil_50.jpg
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: Imagen de perfil a subir
  *         application/json:
  *           schema:
  *             type: object
@@ -86,7 +119,12 @@ router.use(requestLogger);
  *       403:
  *         description: No autorizado para editar este perfil
  */
-router.patch('/:id/perfil', updatePerfilController(dependencies.updateEgresadoPerfil));
+router.patch(
+	'/:id/perfil',
+	authEgresado,
+	multerConfig.single('file'),
+	updatePerfilController(dependencies.updateEgresadoPerfil, dependencies.uploadFile)
+);
 
 /**
  * @openapi
@@ -119,6 +157,48 @@ router.patch('/:id/perfil', updatePerfilController(dependencies.updateEgresadoPe
  *     requestBody:
  *       required: true
  *       content:
+ *         'multipart/form-data':
+ *           schema:
+ *             type: object
+ *             properties:
+ *               data:
+ *                 type: string
+ *                 description: JSON API en texto (opcional si envías campos directos)
+ *                 example: '{"type":"egresados","id":"50","attributes":{"nombre":"Juan Carlos","primer_apellido":"Pérez","email":"mi_nuevo_correo@gmail.com"}}'
+ *               nombre:
+ *                 type: string
+ *                 example: "Juan Carlos"
+ *               primer_apellido:
+ *                 type: string
+ *                 example: "Pérez"
+ *               segundo_apellido:
+ *                 type: string
+ *                 example: "García"
+ *               email:
+ *                 type: string
+ *                 example: mi_nuevo_correo@gmail.com
+ *               fecha_nacimiento:
+ *                 type: string
+ *                 format: date
+ *                 example: "1999-05-20"
+ *               imagen_egresado:
+ *                 type: string
+ *                 format: uri
+ *                 example: https://miservidor.com/uploads/foto_perfil_50.jpg
+ *               id_programa_educativo:
+ *                 type: integer
+ *                 example: 1
+ *               id_periodo:
+ *                 type: integer
+ *                 example: 5
+ *               id_estado:
+ *                 type: integer
+ *                 example: 3
+ *                 description: "1=pendiente, 2=rechazado, 3=aprobado"
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: Imagen de perfil a subir
  *         application/json:
  *           schema:
  *             type: object
@@ -189,7 +269,12 @@ router.patch('/:id/perfil', updatePerfilController(dependencies.updateEgresadoPe
  *       403:
  *         description: No autorizado para editar este perfil
  */
-router.patch('/:id/perfil-completo', updatePerfilCompletoController(dependencies.updatePerfilCompleto));
+router.patch(
+	'/:id/perfil-completo',
+	authEgresado,
+	multerConfig.single('file'),
+	updatePerfilCompletoController(dependencies.updatePerfilCompleto, dependencies.uploadFile)
+);
 
 /**
  * @openapi
@@ -197,6 +282,7 @@ router.patch('/:id/perfil-completo', updatePerfilCompletoController(dependencies
  *   patch:
  *     tags:
  *       - Egresados - Admin
+ *       - Admin
  *     summary: Actualizar perfil completo de un egresado (Admin)
  *     description: |
  *       Permite que un administrador actualice el perfil completo de cualquier egresado.
@@ -215,6 +301,50 @@ router.patch('/:id/perfil-completo', updatePerfilCompletoController(dependencies
  *     requestBody:
  *       required: true
  *       content:
+ *         'multipart/form-data':
+ *           schema:
+ *             type: object
+ *             properties:
+ *               data:
+ *                 type: string
+ *                 description: JSON API en texto (opcional si envías campos directos)
+ *                 example: '{"type":"egresados","id":"50","attributes":{"nombre":"Juan","primer_apellido":"Pérez","email":"juan.perez@example.com"}}'
+ *               nombre:
+ *                 type: string
+ *                 example: "Juan"
+ *               primer_apellido:
+ *                 type: string
+ *                 example: "Pérez"
+ *               segundo_apellido:
+ *                 type: string
+ *                 example: "García"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "juan.perez@example.com"
+ *               fecha_nacimiento:
+ *                 type: string
+ *                 format: date
+ *                 example: "1995-05-20"
+ *               imagen_egresado:
+ *                 type: string
+ *                 format: uri
+ *                 example: "https://servidor.com/foto.jpg"
+ *               id_programa_educativo:
+ *                 type: integer
+ *                 example: 1
+ *               id_periodo:
+ *                 type: integer
+ *                 example: 5
+ *               id_estado:
+ *                 type: integer
+ *                 description: "1=Aprobado, 2=Pendiente, 3=Rechazado"
+ *                 enum: [1, 2, 3]
+ *                 example: 1
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: Imagen de perfil a subir
  *         application/json:
  *           schema:
  *             type: object
@@ -288,7 +418,13 @@ router.patch('/:id/perfil-completo', updatePerfilCompletoController(dependencies
  *       404:
  *         description: Egresado no encontrado
  */
-router.patch('/admin/:id/perfil-completo', updatePerfilCompletoAdminController(dependencies.updatePerfilCompletoAdmin));
+router.patch(
+	'/admin/:id/perfil-completo',
+	requireAuth,
+	requireRoles(['super_admin', 'director_vinculacion']),
+	multerConfig.single('file'),
+	updatePerfilCompletoAdminController(dependencies.updatePerfilCompletoAdmin, dependencies.uploadFile)
+);
 
 /**
  * @openapi
@@ -296,6 +432,7 @@ router.patch('/admin/:id/perfil-completo', updatePerfilCompletoAdminController(d
  *   patch:
  *     tags:
  *       - Egresados
+ *       - Admin
  *     summary: Actualizar estado del egresado
  *     description: |
  *       Actualiza el estado de un egresado. 
@@ -359,7 +496,128 @@ router.patch('/admin/:id/perfil-completo', updatePerfilCompletoAdminController(d
  *       404:
  *         description: Egresado no encontrado
  */
-router.patch('/:id/estado', updateEstadoEgresadoController(dependencies.updateEstadoEgresado));
+router.patch(
+	'/:id/estado',
+	requireAuth,
+	requireRoles(['super_admin', 'director_vinculacion', 'director_programa_educativo']),
+	requireProgramScopeOnEgresadoParam('id'),
+	updateEstadoEgresadoController(dependencies.updateEstadoEgresado)
+);
+
+/**
+ * @openapi
+ * /api/egresado/{id}/sinopsis:
+ *   get:
+ *     tags:
+ *       - Egresados
+ *     summary: Obtener sinopsis profesional del egresado
+ *     description: |
+ *       Obtiene solo la sinopsis (resumen profesional) general del egresado de forma optimizada.
+ *       Ideal para mostrar en interfaces de logros sin cargar todos los datos del perfil.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del egresado
+ *     responses:
+ *       200:
+ *         description: Sinopsis obtenida exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     type:
+ *                       type: string
+ *                       example: egresados-sinopsis
+ *                     id:
+ *                       type: string
+ *                     attributes:
+ *                       type: object
+ *                       properties:
+ *                         sinopsis:
+ *                           type: string
+ *                           nullable: true
+ *                           example: "Profesional con maestría en Ciencia de Datos..."
+ *       404:
+ *         description: Egresado no encontrado
+ *       500:
+ *         description: Error interno del servidor
+ */
+router.get('/:id/sinopsis', getEgresadoSinopsisController);
+
+/**
+ * @openapi
+ * /api/egresado/{id}/sinopsis:
+ *   patch:
+ *     tags:
+ *       - Egresados
+ *     summary: Actualizar sinopsis profesional del egresado
+ *     description: |
+ *       Permite actualizar la sinopsis (resumen profesional) general del egresado.
+ *       Este campo es de uso general para mostrar en la interfaz del perfil e interfaces de logros.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del egresado a actualizar
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               data:
+ *                 type: object
+ *                 properties:
+ *                   type:
+ *                     type: string
+ *                     example: egresados
+ *                   attributes:
+ *                     type: object
+ *                     properties:
+ *                       sinopsis:
+ *                         type: string
+ *                         nullable: true
+ *                         example: "Profesional con maestría en Ciencia de Datos y experiencia en desarrollo de software..."
+ *     responses:
+ *       200:
+ *         description: Sinopsis actualizada exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     type:
+ *                       type: string
+ *                       example: egresados
+ *                     id:
+ *                       type: string
+ *                     attributes:
+ *                       type: object
+ *                       properties:
+ *                         sinopsis:
+ *                           type: string
+ *                           nullable: true
+ *       400:
+ *         description: Datos inválidos en la solicitud
+ *       404:
+ *         description: Egresado no encontrado
+ *       500:
+ *         description: Error interno del servidor
+ */
+router.patch('/:id/sinopsis', updateEgresadoSinopsisController);
 
 /**
  * @openapi
@@ -397,6 +655,7 @@ router.get('/programas-educativos', getProgramasEducativosController(dependencie
  *   post:
  *     tags:
  *       - Egresados
+ *       - Admin
  *     summary: Sincronizar egresados desde el servicio externo Platinum
  *     description: |
  *       Obtiene egresados del servicio externo Platinum y los sincroniza con la base de datos local.
@@ -483,7 +742,7 @@ router.get('/programas-educativos', getProgramasEducativosController(dependencie
  */
 const syncEgresados = syncEgresadosController(dependencies.syncEgresadosFromPlatinum);
 
-router.post('/sync', syncEgresados);
+router.post('/sync', requireAuth, requireRoles(['super_admin', 'director_vinculacion']), syncEgresados);
 
 /**
  * @openapi
@@ -491,6 +750,7 @@ router.post('/sync', syncEgresados);
  *   post:
  *     tags:
  *       - Egresados
+ *       - Admin
  *     summary: Actualizar el periodo de egreso de los egresados existentes
  *     description: |
  *       Obtiene los egresados del servicio externo Platinum y actualiza el campo id_periodo
@@ -574,7 +834,7 @@ router.post('/sync', syncEgresados);
  */
 const actualizarPeriodos = actualizarPeriodosController(dependencies.actualizarPeriodosEgresados);
 
-router.post('/actualizar-periodos', actualizarPeriodos);
+router.post('/actualizar-periodos', requireAuth, requireRoles(['super_admin', 'director_vinculacion']), actualizarPeriodos);
 
 /**
  * @openapi
@@ -582,10 +842,10 @@ router.post('/actualizar-periodos', actualizarPeriodos);
  *   get:
  *     tags:
  *       - Egresados
- *     summary: Obtener perfil completo del egresado con sus logros
+ *     summary: Obtener perfil completo del egresado
  *     description: |
- *       Devuelve toda la información del egresado (nombre, correo, carrera, foto, etc.)
- *       junto con todos sus logros académicos y laborales en una sola respuesta.
+ *       Devuelve la información del egresado en formato legible.
+ *       Incluye el nombre del programa educativo además de su identificador.
  *     parameters:
  *       - in: path
  *         name: id
@@ -644,50 +904,21 @@ router.post('/actualizar-periodos', actualizarPeriodos);
  *                         is_active:
  *                           type: boolean
  *                           example: true
+ *                         id_estado:
+ *                           type: integer
+ *                           example: 3
  *                         id_programa_educativo:
  *                           type: integer
  *                           nullable: true
  *                           example: 5
+ *                         programa_educativo:
+ *                           type: string
+ *                           nullable: true
+ *                           example: Ingeniería Software
  *                         id_periodo:
  *                           type: integer
  *                           nullable: true
  *                           example: 12
- *                     logros_academicos:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           id_academic_achievement:
- *                             type: integer
- *                           name:
- *                             type: string
- *                           institution:
- *                             type: string
- *                           date:
- *                             type: string
- *                       example:
- *                         - id_academic_achievement: 1
- *                           name: Maestría en Ciencias de la Computación
- *                           institution: Universidad Tecnológica
- *                           date: 2023-06-15
- *                     logros_laborales:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           id_labor_achievement:
- *                             type: integer
- *                           company:
- *                             type: string
- *                           position:
- *                             type: string
- *                           date:
- *                             type: string
- *                       example:
- *                         - id_labor_achievement: 1
- *                           company: Tech Solutions
- *                           position: Desarrollador Senior
- *                           date: 2022-01-15
  *       400:
  *         description: ID inválido
  *         content:
@@ -717,7 +948,13 @@ router.post('/actualizar-periodos', actualizarPeriodos);
  */
 const getEgresadoWithAchievements = getEgresadoWithAchievementsController(dependencies.getEgresadoWithAchievements);
 
-router.get('/:id/perfil-completo', getEgresadoWithAchievements);
+router.get(
+	'/:id/perfil-completo',
+	requireAuth,
+	requireSelfOrRoles('id', ['super_admin', 'director_vinculacion', 'director_programa_educativo']),
+	requireProgramScopeOnEgresadoParam('id'),
+	getEgresadoWithAchievements
+);
 
 /**
  * @openapi
@@ -725,10 +962,10 @@ router.get('/:id/perfil-completo', getEgresadoWithAchievements);
  *   get:
  *     tags:
  *       - Egresados
- *     summary: Obtener todos los perfiles completos de egresados con sus logros
+ *     summary: Obtener todos los perfiles completos de egresados
  *     description: |
- *       Devuelve toda la información de todos los egresados (nombre, correo, carrera, foto, etc.)
- *       junto con todos sus logros académicos y laborales en una sola respuesta.
+ *       Devuelve la información de todos los egresados en formato legible.
+ *       Incluye el nombre del programa educativo además de su identificador.
  *     responses:
  *       200:
  *         description: Perfiles completos de egresados obtenidos exitosamente
@@ -782,50 +1019,21 @@ router.get('/:id/perfil-completo', getEgresadoWithAchievements);
  *                           is_active:
  *                             type: boolean
  *                             example: true
+ *                           id_estado:
+ *                             type: integer
+ *                             example: 3
  *                           id_programa_educativo:
  *                             type: integer
  *                             nullable: true
  *                             example: 5
+ *                           programa_educativo:
+ *                             type: string
+ *                             nullable: true
+ *                             example: Ingeniería en Software
  *                           id_periodo:
  *                             type: integer
  *                             nullable: true
  *                             example: 12
- *                       logros_academicos:
- *                         type: array
- *                         items:
- *                           type: object
- *                           properties:
- *                             id_academic_achievement:
- *                               type: integer
- *                             name:
- *                               type: string
- *                             institution:
- *                               type: string
- *                             date:
- *                               type: string
- *                         example:
- *                           - id_academic_achievement: 1
- *                             name: Maestría en Ciencias de la Computación
- *                             institution: Universidad Tecnológica
- *                             date: 2023-06-15
- *                       logros_laborales:
- *                         type: array
- *                         items:
- *                           type: object
- *                           properties:
- *                             id_labor_achievement:
- *                               type: integer
- *                             company:
- *                               type: string
- *                             position:
- *                               type: string
- *                             date:
- *                               type: string
- *                         example:
- *                           - id_labor_achievement: 1
- *                             company: Tech Solutions
- *                             position: Desarrollador Senior
- *                             date: 2022-01-15
  *                 total:
  *                   type: integer
  *                   description: Cantidad total de egresados retornados
@@ -846,7 +1054,12 @@ router.get('/:id/perfil-completo', getEgresadoWithAchievements);
  */
 const getAllEgresadosWithAchievements = getAllEgresadosWithAchievementsController(dependencies.getAllEgresadosWithAchievements);
 
-router.get('/perfiles-completos', getAllEgresadosWithAchievements);
+router.get(
+	'/perfiles-completos',
+	requireAuth,
+	requireRoles(['super_admin', 'director_vinculacion', 'director_programa_educativo']),
+	getAllEgresadosWithAchievements
+);
 
 // Rutas para gestión de trayectoria (logros)
 router.use('/:id/logros-laborales', laborAchievementRoutes);

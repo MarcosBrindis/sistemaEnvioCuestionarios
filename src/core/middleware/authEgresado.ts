@@ -8,5 +8,10 @@ export function authEgresado(req: Request, res: Response, next: NextFunction) {
   if (!req.session || !req.session.user) {
     return res.status(401).json({ error: 'No autenticado' });
   }
+
+  if (req.session.user.rol !== 'egresado') {
+    return res.status(403).json({ error: 'No autorizado para este recurso' });
+  }
+
   next();
 }

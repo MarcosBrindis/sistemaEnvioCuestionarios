@@ -7,7 +7,8 @@ export class BuscarEgresadosPorFiltro {
     id_programa_educativo?: number;
     id_periodo_egreso?: number;
     cohorte?: number;
-    prefijo_matricula?: string; // Ejemplo: '113' (3 primeros dígitos de matrícula)
+    prefijo_matricula?: string;
+    estatus?: number | string;
     busqueda?: string;
     page?: number;
     limit?: number;
@@ -23,6 +24,7 @@ export class BuscarEgresadosPorFiltro {
     if (filtros.id_periodo_egreso) repoFiltros.id_periodo_egreso = filtros.id_periodo_egreso;
     if (filtros.cohorte) repoFiltros.cohorte = filtros.cohorte;
     if (filtros.prefijo_matricula) repoFiltros.prefijo_matricula = filtros.prefijo_matricula;
+    if (filtros.estatus !== undefined && filtros.estatus !== '') repoFiltros.estatus = filtros.estatus;
     if (filtros.busqueda) repoFiltros.busqueda = filtros.busqueda;
 
     // Buscar todos los egresados que cumplen el filtro

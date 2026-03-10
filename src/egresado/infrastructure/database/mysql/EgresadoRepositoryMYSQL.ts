@@ -44,7 +44,7 @@ export class EgresadoRepositoryMySQL extends BaseEgresadoRepository {
 
   async updatePerfilCompleto(
     id: number,
-    data: Partial<Pick<Egresado, 'nombre' | 'primer_apellido' | 'segundo_apellido' | 'email' | 'fecha_nacimiento' | 'imagen_egresado' | 'id_programa_educativo' | 'id_periodo' | 'id_estado'>>
+    data: Partial<Pick<Egresado, 'nombre' | 'primer_apellido' | 'segundo_apellido' | 'email' | 'fecha_nacimiento' | 'imagen_egresado' | 'id_programa_educativo' | 'id_periodo' | 'id_estado' | 'sinopsis'>>
   ): Promise<Egresado> {
     const campos: string[] = [];
     const valores: any[] = [];
@@ -72,6 +72,10 @@ export class EgresadoRepositoryMySQL extends BaseEgresadoRepository {
     if (data.imagen_egresado !== undefined) {
       campos.push('imagen_egresado = ?');
       valores.push(data.imagen_egresado);
+    }
+    if (data.sinopsis !== undefined) {
+      campos.push('sinopsis = ?');
+      valores.push(data.sinopsis);
     }
     if (data.id_programa_educativo !== undefined) {
       campos.push('id_programa_educativo = ?');
@@ -220,13 +224,15 @@ export class EgresadoRepositoryMySQL extends BaseEgresadoRepository {
     id_programa_educativo?: number;
     id_periodo_egreso?: number;
     cohorte?: number;
-    prefijo_matricula?: string; // Ejemplo: '113' (3 primeros dígitos de matrícula)
+    prefijo_matricula?: string;
+    estatus?: number | string;
     busqueda?: string;
   }): Promise<any[]> {
     let sql = `SELECT e.*, p.cohorte AS cohorte_egreso, pe.nombre AS programa_educativo
       FROM egresado e
       LEFT JOIN periodo_graduado p ON e.id_periodo = p.id_periodo
       LEFT JOIN programa_educativo pe ON e.id_programa_educativo = pe.id_programa_educativo
+      LEFT JOIN estado_egresado est ON e.id_estado = est.id_estado
       WHERE 1=1`;
     const params: any[] = [];
     if (filtros.id_programa_educativo) {
@@ -244,6 +250,15 @@ export class EgresadoRepositoryMySQL extends BaseEgresadoRepository {
     if (filtros.prefijo_matricula) {
       sql += ' AND e.matricula LIKE ?';
       params.push(`${filtros.prefijo_matricula}%`);
+    }
+    if (filtros.estatus !== undefined && filtros.estatus !== '') {
+      if (typeof filtros.estatus === 'number') {
+        sql += ' AND e.id_estado = ?';
+        params.push(filtros.estatus);
+      } else {
+        sql += ' AND LOWER(est.nombre) = LOWER(?)';
+        params.push(filtros.estatus.trim());
+      }
     }
     if (filtros.busqueda) {
       sql += ` AND (e.nombre LIKE ? OR e.primer_apellido LIKE ? OR e.segundo_apellido LIKE ? OR e.matricula LIKE ? OR e.email LIKE ? OR pe.nombre LIKE ?)`;

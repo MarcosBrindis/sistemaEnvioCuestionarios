@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
 import { swaggerUiSetup } from './src/config/swagger';
 import swaggerUi from "swagger-ui-express";
 import session from 'express-session';
@@ -17,6 +18,7 @@ import respuestaRoutes from './src/respuesta/infrastructure/http/router/respuest
 import academicAchievementRoutes from './src/academicAchievement/infrastructure/http/router/academicAchievementRoutes';
 import groupRoutes from './src/group/infrastructure/http/router/groupRoutes';
 import authRoutes from './src/auth/infrastructure/http/router/authRoutes';
+import { createUsuariosInternosRoutes } from './src/usuariosInternos/infrastructure/http/routes/usuariosInternosRoutes';
 import importarMiembrosRoutes from './src/importacionMiembros/infrastructure/http/router/importarMiembrosRoutes';
 import suscripcionRoutes from './src/egresado-suscripcion/infrastructure/http/router/suscripcionRoutes';
 import Survey from './src/surveys/infrastructure/http/router/surveyRouter';
@@ -30,6 +32,9 @@ import mailingClientRouter from './src/mailing/client/infrastructure/http/router
 import mailingSenderRouter from './src/mailing/sender/infrastructure/http/router/sender.router';
 import distributionRouter from './src/distribution/infrastructure/http/router/distribution.router';
 import analyticsRouter from './src/analytics/infrastructure/http/router/analytics.router';
+import datosDomiciliariosRoutes from './src/datosDomiciliarios/infrastructure/http/routes/datosDomiciliariosRoutes';
+import datosLaboralesRoutes from './src/datosLaborales/infrastructure/http/routes/datosLaboralesRoutes';
+import fileRoutes from './src/files/infrastructure/http/router/fileRoutes';
 
 
 const app = express();
@@ -73,6 +78,9 @@ async function startServer() {
         }
     }));
 
+    // Servir archivos estáticos desde la carpeta uploads
+    app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
     // Rutas
     app.use('/api/tipo-pregunta', typeQuestionRoutes);
     app.use('/api/pregunta', questionRoutes);
@@ -84,8 +92,12 @@ async function startServer() {
     app.use('/api/egresado/logros-academicos', academicAchievementRoutes);
 
     app.use('/api/egresado', egresadoRoutes)
+    app.use('/api/datos-domiciliarios', datosDomiciliariosRoutes);
+    app.use('/api/datos-laborales', datosLaboralesRoutes);
+    app.use('/api/files', fileRoutes);
     app.use('/api/grupo', groupRoutes)
     app.use('/api/auth', authRoutes);
+    app.use('/api/admin/usuarios-internos', createUsuariosInternosRoutes());
     app.use('/api', importarMiembrosRoutes);
     app.use('/api', suscripcionRoutes);
 

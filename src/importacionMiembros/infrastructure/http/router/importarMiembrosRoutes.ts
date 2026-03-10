@@ -108,6 +108,7 @@ router.post('/grupos/:id/miembros/importar', importarMiembrosController(dependen
  *       - id_periodo_egreso: ID del periodo de egreso
  *       - cohorte: Código de cohorte del periodo de egreso (ej. 241 = ENE-ABR 2024)
  *       - prefijo_matricula: Primeros 3 dígitos de la matrícula (año/periodo de ingreso, ej. "113")
+ *       - estatus: Estado del egresado (1=pendiente, 2=rechazado, 3=aprobado)
  *       - busqueda: Texto libre (nombre, matrícula, correo)
  *     parameters:
  *       - in: query
@@ -130,6 +131,13 @@ router.post('/grupos/:id/miembros/importar', importarMiembrosController(dependen
  *         schema:
  *           type: string
  *         description: Primeros 3 dígitos de la matrícula (año/periodo de ingreso)
+ *       - in: query
+ *         name: estatus
+ *         schema:
+ *           oneOf:
+ *             - type: integer
+ *             - type: string
+ *         description: Estado del egresado (id_estado o nombre del catálogo)
  *       - in: query
  *         name: busqueda
  *         schema:

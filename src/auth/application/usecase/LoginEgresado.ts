@@ -9,14 +9,16 @@ export interface LoginResult {
 export class LoginEgresado {
   constructor(private authRepo: AuthRepository) {}
 
-  async execute(matricula: string, curp: string): Promise<LoginResult | null> {
-    const egresado = await this.authRepo.validateCredentials(matricula, curp);
+  async execute(curp: string): Promise<LoginResult | null> {
+    const egresado = await this.authRepo.validateEgresadoCredentials(curp);
     if (!egresado) return null;
     return {
       user: {
         id: egresado.id_egresado!,
         nombre: egresado.nombre + ' ' + egresado.primer_apellido,
         rol: 'egresado',
+        tipo: 'egresado',
+        email: egresado.email || null,
       },
       email: egresado.email || null,
     };

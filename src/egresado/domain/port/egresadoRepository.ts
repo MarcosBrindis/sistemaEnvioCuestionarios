@@ -24,7 +24,7 @@ export interface EgresadoRepository {
    * @param id ID del egresado
    * @param data Campos a actualizar (todos excepto matricula, curp, id_egresado)
    */
-  updatePerfilCompleto(id: number, data: Partial<Pick<Egresado, 'nombre' | 'primer_apellido' | 'segundo_apellido' | 'email' | 'fecha_nacimiento' | 'imagen_egresado' | 'id_programa_educativo' | 'id_periodo' | 'id_estado'>>): Promise<Egresado>;
+  updatePerfilCompleto(id: number, data: Partial<Pick<Egresado, 'nombre' | 'primer_apellido' | 'segundo_apellido' | 'email' | 'fecha_nacimiento' | 'imagen_egresado' | 'id_programa_educativo' | 'id_periodo' | 'id_estado' | 'sinopsis'>>): Promise<Egresado>;
   /**
    * Obtiene los estados disponibles para egresados
    */
@@ -37,6 +37,7 @@ export interface EgresadoRepository {
     id_periodo_egreso?: number;
     cohorte?: number;
     prefijo_matricula?: string;
+    estatus?: number | string;
     busqueda?: string;
   }): Promise<Egresado[]>;
 }
