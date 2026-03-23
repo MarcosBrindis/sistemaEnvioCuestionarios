@@ -47,25 +47,25 @@ export class SyncEgresadosFromPlatinum {
     };
 
     try {
-      console.log('📅 Sincronizando periodos...');
+      console.log('Sincronizando periodos...');
       const periodosSync = await this.syncPeriodos();
       result.resumen.periodos_nuevos = periodosSync;
-      console.log(`✅ Periodos sincronizados: ${periodosSync} nuevos`);
+      console.log(`Periodos sincronizados: ${periodosSync} nuevos`);
 
-      console.log('🎓 Sincronizando programas educativos...');
+      console.log('Sincronizando programas educativos...');
       const programasSync = await this.syncProgramasEducativos();
       result.resumen.programas_nuevos = programasSync;
-      console.log(`✅ Programas sincronizados: ${programasSync} nuevos`);
+      console.log(`Programas sincronizados: ${programasSync} nuevos`);
 
-      console.log('📥 Obteniendo egresados de Platinum...');
+      console.log('Obteniendo egresados de Platinum...');
       const alumnos = await this.platinumAPI.getAlumnos(params);
       result.resumen.egresados_procesados_total = alumnos.length;
-      console.log(`📊 Total de egresados a procesar: ${alumnos.length}`);
+      console.log(`Total de egresados a procesar: ${alumnos.length}`);
 
       const batches = this.chunkArray(alumnos, this.batchSize);
       
       for (let i = 0; i < batches.length; i++) {
-        console.log(`⏳ Procesando lote ${i + 1}/${batches.length}...`);
+        console.log(`Procesando lote ${i + 1}/${batches.length}...`);
         const batchResult = await this.processEgresadosBatch(batches[i]);
         
         result.resumen.nuevos_insertados += batchResult.insertados;
@@ -76,7 +76,7 @@ export class SyncEgresadosFromPlatinum {
           result.errores?.push(...batchResult.erroresDetalles);
         }
         
-        console.log(`   ✓ Lote ${i + 1}: ${batchResult.insertados} insertados, ${batchResult.ignorados} existentes`);
+        console.log(`Lote ${i + 1}: ${batchResult.insertados} insertados, ${batchResult.ignorados} existentes`);
       }
 
       if (result.resumen.errores > 0 && result.resumen.nuevos_insertados === 0) {
@@ -85,19 +85,19 @@ export class SyncEgresadosFromPlatinum {
         result.status = 'parcial';
       }
 
-      console.log('🏁 Sincronización completada:');
-      console.log(`   - Periodos nuevos: ${result.resumen.periodos_nuevos}`);
-      console.log(`   - Programas nuevos: ${result.resumen.programas_nuevos}`);
-      console.log(`   - Egresados procesados: ${result.resumen.egresados_procesados_total}`);
-      console.log(`   - Nuevos insertados: ${result.resumen.nuevos_insertados}`);
-      console.log(`   - Existentes ignorados: ${result.resumen.existentes_ignorados}`);
-      console.log(`   - Errores: ${result.resumen.errores}`);
+      console.log('Sincronización completada:');
+      console.log(`- Periodos nuevos: ${result.resumen.periodos_nuevos}`);
+      console.log(`- Programas nuevos: ${result.resumen.programas_nuevos}`);
+      console.log(`- Egresados procesados: ${result.resumen.egresados_procesados_total}`);
+      console.log(`- Nuevos insertados: ${result.resumen.nuevos_insertados}`);
+      console.log(`- Existentes ignorados: ${result.resumen.existentes_ignorados}`);
+      console.log(`- Errores: ${result.resumen.errores}`);
 
       return result;
 
     } catch (error) {
       const err = error as Error;
-      console.error('❌ Error en sincronización:', err.message);
+      console.error('Error en sincronización:', err.message);
       result.status = 'fallido';
       result.errores?.push(`Error general: ${err.message}`);
       return result;
