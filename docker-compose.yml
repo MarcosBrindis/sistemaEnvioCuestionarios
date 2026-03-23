@@ -1,0 +1,25 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sistema-envio-cuestionarios-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    ports:
+      - "${PORT:-3000}:3000"
+    volumes:
+      - uploads_data:/app/uploads
+    networks:
+      - backend_net
+
+volumes:
+  uploads_data:
+
+networks:
+  backend_net:
+    driver: bridge
