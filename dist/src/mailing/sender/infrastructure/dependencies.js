@@ -1,0 +1,18 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.sendEmailController = exports.enqueueEmailUseCase = exports.processEmailUseCase = void 0;
+const MysqlSenderRepository_1 = require("./database/mysql/MysqlSenderRepository");
+const LocalEmailQueue_1 = require("./queue/LocalEmailQueue");
+const SmartBalancerService_1 = require("../application/service/SmartBalancerService");
+const NodemailerService_1 = require("./service/NodemailerService");
+const EnqueueEmailUseCase_1 = require("../application/usecase/EnqueueEmailUseCase");
+const ProcessEmailUseCase_1 = require("../application/usecase/ProcessEmailUseCase");
+const SendEmailController_1 = require("./http/controller/SendEmailController");
+const senderRepository = new MysqlSenderRepository_1.MysqlSenderRepository();
+const smartBalancer = new SmartBalancerService_1.SmartBalancerService(senderRepository);
+const mailerService = new NodemailerService_1.NodemailerService();
+const emailQueue = new LocalEmailQueue_1.LocalEmailQueue();
+exports.processEmailUseCase = new ProcessEmailUseCase_1.ProcessEmailUseCase(smartBalancer, mailerService, senderRepository);
+emailQueue.registerWorker((job) => exports.processEmailUseCase.execute(job));
+exports.enqueueEmailUseCase = new EnqueueEmailUseCase_1.EnqueueEmailUseCase(emailQueue);
+exports.sendEmailController = new SendEmailController_1.SendEmailController(exports.enqueueEmailUseCase);

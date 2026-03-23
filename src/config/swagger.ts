@@ -2,6 +2,8 @@ import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import path from "path";
 
+const publicApiUrl = process.env.PUBLIC_API_URL?.trim();
+
 const options: swaggerJsdoc.Options = {
   definition: {
     openapi: "3.0.0",
@@ -12,8 +14,9 @@ const options: swaggerJsdoc.Options = {
     },
     servers: [
       {
-        url: "http://localhost:3000",
-        description: "Servidor local",
+        // Usa mismo origen por defecto para que Swagger funcione detras de IP/dominio/proxy.
+        url: publicApiUrl && /^https?:\/\//.test(publicApiUrl) ? publicApiUrl : "/",
+        description: publicApiUrl ? "Servidor configurado" : "Servidor actual (mismo origen)",
       },
     ],
     components: {

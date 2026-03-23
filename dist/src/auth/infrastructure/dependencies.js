@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getSessionInfoUsecase = exports.logoutEgresadoUsecase = exports.loginStaffUsecase = exports.loginEgresadoUsecase = exports.authRepository = void 0;
+const AuthRepositoryMySQL_1 = require("./database/mysql/AuthRepositoryMySQL");
+const LoginEgresado_1 = require("../application/usecase/LoginEgresado");
+const LoginStaff_1 = require("../application/usecase/LoginStaff");
+const LogoutEgresado_1 = require("../application/usecase/LogoutEgresado");
+const GetSessionInfo_1 = require("../application/usecase/GetSessionInfo");
+exports.authRepository = new AuthRepositoryMySQL_1.AuthRepositoryMySQL();
+exports.loginEgresadoUsecase = new LoginEgresado_1.LoginEgresado(exports.authRepository);
+exports.loginStaffUsecase = new LoginStaff_1.LoginStaff(exports.authRepository);
+exports.logoutEgresadoUsecase = new LogoutEgresado_1.LogoutEgresado();
+exports.getSessionInfoUsecase = new GetSessionInfo_1.GetSessionInfo();

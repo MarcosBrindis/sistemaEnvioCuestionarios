@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const CreateAccountController_1 = require("../controller/CreateAccountController");
+const UpdateAccountController_1 = require("../controller/UpdateAccountController");
+const GetAccountsController_1 = require("../controller/GetAccountsController");
+const DeleteAccountController_1 = require("../controller/DeleteAccountController");
+const dependencies_1 = require("../../dependencies");
+const router = (0, express_1.Router)();
+router.post('/accounts', (0, CreateAccountController_1.CreateAccountController)(dependencies_1.mailingDependencies.createAccountUseCase));
+router.patch('/accounts/:id', (0, UpdateAccountController_1.UpdateAccountController)(dependencies_1.mailingDependencies.updateAccountUseCase));
+router.get('/accounts', (0, GetAccountsController_1.GetAccountsController)(dependencies_1.mailingDependencies.getAccountsUseCase));
+router.delete('/accounts/:id', (0, DeleteAccountController_1.DeleteAccountController)(dependencies_1.mailingDependencies.deleteAccountUseCase));
+exports.default = router;
