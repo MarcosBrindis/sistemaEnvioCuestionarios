@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const assignSurveyController_1 = require("../controller/assignSurveyController");
+const assignSurveyGroupController_1 = require("../controller/assignSurveyGroupController");
+const listSurveyParticipantsController_1 = require("../controller/listSurveyParticipantsController");
+const revokeSurveyAccessController_1 = require("../controller/revokeSurveyAccessController");
+const dependencies_1 = require("../../dependencies");
+const assignmentRouter = (0, express_1.Router)({ mergeParams: true });
+assignmentRouter.post('/asignar', (0, assignSurveyController_1.assignSurveyController)(dependencies_1.assignmentDependencies.assignSurvey));
+assignmentRouter.post('/asignar/grupo', (0, assignSurveyGroupController_1.assignSurveyGroupController)(dependencies_1.assignmentDependencies.assignSurveyGroup));
+assignmentRouter.get('/participantes', (0, listSurveyParticipantsController_1.listSurveyParticipantsController)(dependencies_1.assignmentDependencies.listSurveyParticipants));
+assignmentRouter.delete('/participantes/:uuid', (0, revokeSurveyAccessController_1.revokeSurveyAccessController)(dependencies_1.assignmentDependencies.revokeSurveyAccess));
+exports.default = assignmentRouter;

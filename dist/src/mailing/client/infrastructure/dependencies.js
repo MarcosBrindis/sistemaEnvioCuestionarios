@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.activateClientUseCase = exports.revokeClientUseCase = exports.rotateKeyUseCase = exports.listClientsUseCase = exports.registerClientUseCase = void 0;
+const MysqlApiClientRepository_1 = require("./database/mysql/MysqlApiClientRepository");
+const RegisterClientUseCase_1 = require("../application/usecase/RegisterClientUseCase");
+const ListClientsUseCase_1 = require("../application/usecase/ListClientsUseCase");
+const RotateKeyUseCase_1 = require("../application/usecase/RotateKeyUseCase");
+const RevokeClientUseCase_1 = require("../application/usecase/RevokeClientUseCase");
+const ActivateClientUseCase_1 = require("../application/usecase/ActivateClientUseCase");
+const apiClientRepository = new MysqlApiClientRepository_1.MysqlApiClientRepository();
+exports.registerClientUseCase = new RegisterClientUseCase_1.RegisterClientUseCase(apiClientRepository);
+exports.listClientsUseCase = new ListClientsUseCase_1.ListClientsUseCase(apiClientRepository);
+exports.rotateKeyUseCase = new RotateKeyUseCase_1.RotateKeyUseCase(apiClientRepository);
+exports.revokeClientUseCase = new RevokeClientUseCase_1.RevokeClientUseCase(apiClientRepository);
+exports.activateClientUseCase = new ActivateClientUseCase_1.ActivateClientUseCase(apiClientRepository);

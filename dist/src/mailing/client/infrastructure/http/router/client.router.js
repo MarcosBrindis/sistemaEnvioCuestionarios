@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const RegisterClientController_1 = require("../controller/RegisterClientController");
+const ListClientsController_1 = require("../controller/ListClientsController");
+const RotateKeyController_1 = require("../controller/RotateKeyController");
+const RevokeClientController_1 = require("../controller/RevokeClientController");
+const ActivateClientController_1 = require("../controller/ActivateClientController");
+const router = (0, express_1.Router)();
+router.post('/clients', RegisterClientController_1.RegisterClientController);
+router.get('/clients', ListClientsController_1.ListClientsController);
+router.patch('/clients/:id/rotate', RotateKeyController_1.RotateKeyController);
+router.patch('/clients/:id/revoke', RevokeClientController_1.RevokeClientController);
+router.patch('/clients/:id/activate', ActivateClientController_1.ActivateClientController);
+exports.default = router;
