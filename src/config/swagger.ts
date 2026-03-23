@@ -668,15 +668,10 @@ const options: swaggerJsdoc.Options = {
     }
   },
   apis: [
-    `${path.join(__dirname, "../../**/*.ts")}`,
-    `${path.join(__dirname, "../group/infrastructure/http/swagger/group.swagger.ts")}`,
-    `${path.join(__dirname, "../auth/infrastructure/http/swagger/auth.swagger.ts")}`,
-    `${path.join(__dirname, "../surveyAssignment/infrastructure/http/swagger/assignment.swagger.ts")}`,
-    `${path.join(__dirname, "../mailing/infrastructure/http/swagger/accountswagger.ts")}`,
-    `${path.join(__dirname, "../mailing/client/infrastructure/http/swagger/client.swagger.ts")}`,
-    `${path.join(__dirname, "../mailing/sender/infrastructure/http/swagger/sender.swagger.ts")}`,
-    `${path.join(__dirname, "../distribution/infrastructure/http/swagger/distribution.swagger.ts")}`,
-    `${path.join(__dirname, "../analytics/infrastructure/http/swagger/analytics.swagger.ts")}`,
+    // Desarrollo: anotaciones en archivos TypeScript
+    path.join(process.cwd(), "src/**/*.ts"),
+    // Produccion (Docker): anotaciones en JavaScript compilado
+    path.join(process.cwd(), "dist/**/*.js"),
   ],
 };
 
