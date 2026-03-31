@@ -68,3 +68,126 @@
  *                     message:
  *                       type: string
  */
+
+/**
+ * @openapi
+ * /distribution/dispatch-birthday:
+ *   post:
+ *     summary: Ejecutar envio manual de felicitaciones de cumpleaños
+ *     description: >
+ *       Dispara manualmente el proceso de envio de correos de cumpleaños para los egresados
+ *       que cumplen hoy. Este endpoint es util para pruebas o ejecuciones puntuales fuera del cron.
+ *     tags:
+ *       - Distribution
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id_template:
+ *                 type: integer
+ *                 description: ID de template de cumpleaños. Si no se envia, usa BIRTHDAY_TEMPLATE_ID.
+ *                 example: 150001
+ *               reference_date:
+ *                 type: string
+ *                 format: date
+ *                 description: Fecha de referencia para buscar cumpleaños (YYYY-MM-DD).
+ *                 example: 2026-03-31
+ *     responses:
+ *       200:
+ *         description: Envio de cumpleaños ejecutado correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     mode:
+ *                       type: string
+ *                       enum: [birthday-date, test]
+ *                     date:
+ *                       type: string
+ *                     template_id:
+ *                       type: integer
+ *                     total_participants:
+ *                       type: integer
+ *                     sent:
+ *                       type: integer
+ *                     failed:
+ *                       type: integer
+ *                     message:
+ *                       type: string
+ *       500:
+ *         description: Error al ejecutar el envio de cumpleaños
+ */
+
+/**
+ * @openapi
+ * /distribution/dispatch-birthday-test:
+ *   post:
+ *     summary: Ejecutar envio de prueba de felicitaciones de cumpleaños
+ *     description: >
+ *       Ejecuta un envio aislado a destinatarios de prueba sin depender de que cumplan años hoy.
+ *       Se puede indicar lista de `target_egresado_ids`, `target_emails` o ambas.
+ *     tags:
+ *       - Distribution
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id_template:
+ *                 type: integer
+ *                 description: ID de template de cumpleaños. Si no se envia, usa BIRTHDAY_TEMPLATE_ID.
+ *                 example: 150001
+ *               target_egresado_ids:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 description: IDs de egresado para pruebas.
+ *                 example: [1001, 1002]
+ *               target_emails:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: email
+ *                 description: Correos de egresados para pruebas.
+ *                 example: ["qa1@example.com", "qa2@example.com"]
+ *             anyOf:
+ *               - required: [target_egresado_ids]
+ *               - required: [target_emails]
+ *     responses:
+ *       200:
+ *         description: Envio de prueba ejecutado correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     mode:
+ *                       type: string
+ *                       enum: [birthday-date, test]
+ *                     date:
+ *                       type: string
+ *                     template_id:
+ *                       type: integer
+ *                     total_participants:
+ *                       type: integer
+ *                     sent:
+ *                       type: integer
+ *                     failed:
+ *                       type: integer
+ *                     message:
+ *                       type: string
+ *       500:
+ *         description: Error al ejecutar el envio de prueba
+ */

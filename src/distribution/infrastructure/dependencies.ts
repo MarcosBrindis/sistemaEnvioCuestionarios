@@ -3,7 +3,10 @@ import { MysqlTemplateRepository } from './database/mysql/MysqlTemplateRepositor
 import { RestMailingService } from './adapter/RestMailingService';
 import { TemplateEngineService } from '../application/service/TemplateEngineService';
 import { DispatchSurveyRemindersUseCase } from '../application/usecase/DispatchSurveyRemindersUseCase';
+import { DispatchBirthdayCongratsUseCase } from '../application/usecase/DispatchBirthdayCongratsUseCase';
 import { DispatchController } from './http/controller/DispatchController';
+import { DispatchBirthdayController } from './http/controller/DispatchBirthdayController';
+import { DispatchBirthdayTestController } from './http/controller/DispatchBirthdayTestController';
 import { AssignmentRepositoryMySQL } from '../../surveyAssignment/infrastructure/database/mysql/AssignmentRepositoryMySQL';
 import { AssignSurveyGroup } from '../../surveyAssignment/application/usecase/AssignSurveyGroup';
 
@@ -22,4 +25,13 @@ export const dispatchSurveyRemindersUseCase = new DispatchSurveyRemindersUseCase
   assignSurveyGroup
 );
 
+export const dispatchBirthdayCongratsUseCase = new DispatchBirthdayCongratsUseCase(
+  participantRepository,
+  templateRepository,
+  mailingClient,
+  templateEngine
+);
+
 export const dispatchController = new DispatchController(dispatchSurveyRemindersUseCase);
+export const dispatchBirthdayController = new DispatchBirthdayController(dispatchBirthdayCongratsUseCase);
+export const dispatchBirthdayTestController = new DispatchBirthdayTestController(dispatchBirthdayCongratsUseCase);

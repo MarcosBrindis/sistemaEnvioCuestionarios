@@ -31,6 +31,8 @@ import mailingAccountRouter from './src/mailing/infrastructure/http/router/accou
 import mailingClientRouter from './src/mailing/client/infrastructure/http/router/client.router';
 import mailingSenderRouter from './src/mailing/sender/infrastructure/http/router/sender.router';
 import distributionRouter from './src/distribution/infrastructure/http/router/distribution.router';
+import { dispatchBirthdayCongratsUseCase } from './src/distribution/infrastructure/dependencies';
+import { scheduleBirthdayDispatchJob } from './src/distribution/infrastructure/cron/BirthdayDispatchScheduler';
 import analyticsRouter from './src/analytics/infrastructure/http/router/analytics.router';
 import datosDomiciliariosRoutes from './src/datosDomiciliarios/infrastructure/http/routes/datosDomiciliariosRoutes';
 import datosLaboralesRoutes from './src/datosLaborales/infrastructure/http/routes/datosLaboralesRoutes';
@@ -112,6 +114,8 @@ async function startServer() {
     app.use('/mailing', mailingSenderRouter);
     app.use('/distribution', distributionRouter);
     app.use('/analytics', analyticsRouter);
+
+    scheduleBirthdayDispatchJob(dispatchBirthdayCongratsUseCase);
 
 
     // Ruta raíz
