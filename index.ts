@@ -37,6 +37,7 @@ import analyticsRouter from './src/analytics/infrastructure/http/router/analytic
 import datosDomiciliariosRoutes from './src/datosDomiciliarios/infrastructure/http/routes/datosDomiciliariosRoutes';
 import datosLaboralesRoutes from './src/datosLaborales/infrastructure/http/routes/datosLaboralesRoutes';
 import fileRoutes from './src/files/infrastructure/http/router/fileRoutes';
+import automaticEventsRouter from './src/automaticEvents/infrastructure/http/router/automaticEvents.router';
 
 
 const app = express();
@@ -114,6 +115,7 @@ async function startServer() {
     app.use('/mailing', mailingSenderRouter);
     app.use('/distribution', distributionRouter);
     app.use('/analytics', analyticsRouter);
+    app.use('/api/automatic-events', automaticEventsRouter);
 
     scheduleBirthdayDispatchJob(dispatchBirthdayCongratsUseCase);
 
