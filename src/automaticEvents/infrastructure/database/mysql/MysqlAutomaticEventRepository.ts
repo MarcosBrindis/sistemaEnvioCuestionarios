@@ -1,0 +1,278 @@
+import { MysqlConnection } from '../../../../core/db/mysl/connection';
+import { AutomaticEvent, AutomaticEventPayload } from '../../../domain/model/AutomaticEvent';
+import { AutomaticEventRun, AutomaticEventRunStatus } from '../../../domain/model/AutomaticEventRun';
+import {
+  AutomaticEventRepository,
+  CreateAutomaticEventInput,
+  CreateRunInput,
+  FinishRunInput,
+  UpdateAutomaticEventInput
+} from '../../../domain/port/AutomaticEventRepository';
+
+type AutomaticEventRow = {
+  id_event: number;
+  name: string;
+  event_type: AutomaticEvent['event_type'];
+  cron_expression: string;
+  timezone: string;
+  payload_json: string;
+  is_active: number;
+  starts_at: Date | null;
+  ends_at: Date | null;
+  next_run_at: Date | null;
+  last_run_at: Date | null;
+  created_by: number;
+  updated_by: number;
+  created_at: Date;
+  updated_at: Date;
+};
+
+type AutomaticEventRunRow = {
+  id_run: number;
+  id_event: number;
+  scheduled_for: Date;
+  started_at: Date;
+  finished_at: Date | null;
+  status: AutomaticEventRunStatus;
+  attempts: number;
+  triggered_by: number | null;
+  error_message: string | null;
+  result_json: string | null;
+  created_at: Date;
+};
+
+function parseJsonPayload(raw: string): AutomaticEventPayload {
+  try {
+    return JSON.parse(raw) as AutomaticEventPayload;
+  } catch {
+    throw new Error('No se pudo parsear payload_json del evento automatico.');
+  }
+}
+
+function parseJsonResult(raw: string | null): unknown {
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as unknown;
+  } catch {
+    return null;
+  }
+}
+
+function mapEvent(row: AutomaticEventRow): AutomaticEvent {
+  return {
+    id_event: row.id_event,
+    name: row.name,
+    event_type: row.event_type,
+    cron_expression: row.cron_expression,
+    timezone: row.timezone,
+    payload: parseJsonPayload(row.payload_json),
+    is_active: row.is_active === 1,
+    starts_at: row.starts_at,
+    ends_at: row.ends_at,
+    next_run_at: row.next_run_at,
+    last_run_at: row.last_run_at,
+    created_by: row.created_by,
+    updated_by: row.updated_by,
+    created_at: row.created_at,
+    updated_at: row.updated_at
+  };
+}
+
+function mapRun(row: AutomaticEventRunRow): AutomaticEventRun {
+  return {
+    id_run: row.id_run,
+    id_event: row.id_event,
+    scheduled_for: row.scheduled_for,
+    started_at: row.started_at,
+    finished_at: row.finished_at,
+    status: row.status,
+    attempts: row.attempts,
+    triggered_by: row.triggered_by,
+    error_message: row.error_message,
+    result: parseJsonResult(row.result_json),
+    created_at: row.created_at
+  };
+}
+
+export class MysqlAutomaticEventRepository implements AutomaticEventRepository {
+  async create(input: CreateAutomaticEventInput): Promise<AutomaticEvent> {
+    const [result]: any = await MysqlConnection.execute(
+      `
+      INSERT INTO automatic_event
+        (name, event_type, cron_expression, timezone, payload_json, is_active, starts_at, ends_at, next_run_at, created_by, updated_by)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+      [
+        input.name,
+        input.event_type,
+        input.cron_expression,
+        input.timezone,
+        JSON.stringify(input.payload),
+        input.is_active ? 1 : 0,
+        input.starts_at ?? null,
+        input.ends_at ?? null,
+        input.next_run_at ?? null,
+        input.created_by,
+        input.created_by
+      ]
+    );
+
+    const created = await this.findById(result.insertId);
+    if (!created) {
+      throw new Error('No se pudo crear el evento automatico.');
+    }
+    return created;
+  }
+
+  async findAll(): Promise<AutomaticEvent[]> {
+    const [rows]: any = await MysqlConnection.query(
+      `SELECT * FROM automatic_event ORDER BY id_event DESC`
+    );
+    return (rows as AutomaticEventRow[]).map(mapEvent);
+  }
+
+  async findById(id_event: number): Promise<AutomaticEvent | null> {
+    const [rows]: any = await MysqlConnection.query(
+      `SELECT * FROM automatic_event WHERE id_event = ? LIMIT 1`,
+      [id_event]
+    );
+
+    const items = rows as AutomaticEventRow[];
+    if (!items.length) return null;
+    return mapEvent(items[0]);
+  }
+
+  async update(id_event: number, input: UpdateAutomaticEventInput): Promise<AutomaticEvent | null> {
+    const fields: string[] = [];
+    const values: Array<string | number | Date | null> = [];
+
+    if (input.name !== undefined) {
+      fields.push('name = ?');
+      values.push(input.name);
+    }
+    if (input.event_type !== undefined) {
+      fields.push('event_type = ?');
+      values.push(input.event_type);
+    }
+    if (input.cron_expression !== undefined) {
+      fields.push('cron_expression = ?');
+      values.push(input.cron_expression);
+    }
+    if (input.timezone !== undefined) {
+      fields.push('timezone = ?');
+      values.push(input.timezone);
+    }
+    if (input.payload !== undefined) {
+      fields.push('payload_json = ?');
+      values.push(JSON.stringify(input.payload));
+    }
+    if (input.starts_at !== undefined) {
+      fields.push('starts_at = ?');
+      values.push(input.starts_at);
+    }
+    if (input.ends_at !== undefined) {
+      fields.push('ends_at = ?');
+      values.push(input.ends_at);
+    }
+    if (input.next_run_at !== undefined) {
+      fields.push('next_run_at = ?');
+      values.push(input.next_run_at);
+    }
+
+    fields.push('updated_by = ?');
+    values.push(input.updated_by);
+    fields.push('updated_at = NOW()');
+
+    await MysqlConnection.execute(
+      `UPDATE automatic_event SET ${fields.join(', ')} WHERE id_event = ?`,
+      [...values, id_event]
+    );
+
+    return this.findById(id_event);
+  }
+
+  async setActive(id_event: number, is_active: boolean, updated_by: number): Promise<AutomaticEvent | null> {
+    await MysqlConnection.execute(
+      `
+      UPDATE automatic_event
+      SET is_active = ?, updated_by = ?, updated_at = NOW()
+      WHERE id_event = ?
+      `,
+      [is_active ? 1 : 0, updated_by, id_event]
+    );
+
+    return this.findById(id_event);
+  }
+
+  async createRun(input: CreateRunInput): Promise<AutomaticEventRun> {
+    const [result]: any = await MysqlConnection.execute(
+      `
+      INSERT INTO automatic_event_run
+        (id_event, scheduled_for, started_at, status, attempts, triggered_by)
+      VALUES (?, ?, NOW(), 'running', 1, ?)
+      `,
+      [input.id_event, input.scheduled_for, input.triggered_by ?? null]
+    );
+
+    const [rows]: any = await MysqlConnection.query(
+      `SELECT * FROM automatic_event_run WHERE id_run = ? LIMIT 1`,
+      [result.insertId]
+    );
+
+    const items = rows as AutomaticEventRunRow[];
+    if (!items.length) {
+      throw new Error('No se pudo crear la ejecucion del evento.');
+    }
+    return mapRun(items[0]);
+  }
+
+  async finishRun(input: FinishRunInput): Promise<void> {
+    await MysqlConnection.execute(
+      `
+      UPDATE automatic_event_run
+      SET
+        status = ?,
+        finished_at = NOW(),
+        error_message = ?,
+        result_json = ?
+      WHERE id_run = ?
+      `,
+      [
+        input.status,
+        input.error_message ?? null,
+        input.result === undefined ? null : JSON.stringify(input.result),
+        input.id_run
+      ]
+    );
+
+    if (input.status === 'success') {
+      const [runRows]: any = await MysqlConnection.query(
+        `SELECT id_event FROM automatic_event_run WHERE id_run = ? LIMIT 1`,
+        [input.id_run]
+      );
+
+      const idEvent = (runRows as Array<{ id_event: number }>)[0]?.id_event;
+      if (idEvent) {
+        await MysqlConnection.execute(
+          `UPDATE automatic_event SET last_run_at = NOW(), updated_at = NOW() WHERE id_event = ?`,
+          [idEvent]
+        );
+      }
+    }
+  }
+
+  async listRuns(id_event: number): Promise<AutomaticEventRun[]> {
+    const [rows]: any = await MysqlConnection.query(
+      `
+      SELECT *
+      FROM automatic_event_run
+      WHERE id_event = ?
+      ORDER BY id_run DESC
+      LIMIT 100
+      `,
+      [id_event]
+    );
+
+    return (rows as AutomaticEventRunRow[]).map(mapRun);
+  }
+}
