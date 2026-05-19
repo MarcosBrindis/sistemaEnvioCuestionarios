@@ -5,6 +5,9 @@ export class AssignSurveyGroup {
   constructor(private assignmentRepo: AssignmentRepository) {}
 
   async execute(idEncuesta: number, idGroup: number): Promise<{ created: number; reactivated: number; skipped: number }> {
+    // La encuesta conserva historial, pero solo el último grupo asignado queda activo.
+    await this.assignmentRepo.deactivateAllAssignmentsForSurvey(idEncuesta);
+
     // Obtener todos los egresados del grupo
     const [rows]: [any[], any] = await MysqlConnection.query(
       'SELECT id_egresado FROM grupo_miembro WHERE id_grupo = ?',

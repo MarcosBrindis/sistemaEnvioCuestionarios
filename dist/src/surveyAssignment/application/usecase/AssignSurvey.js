@@ -16,6 +16,8 @@ class AssignSurvey {
     }
     execute(idEncuesta, egresados) {
         return __awaiter(this, void 0, void 0, function* () {
+            // Mantener historial, pero asegurar que solo los miembros recién asignados queden activos
+            yield this.assignmentRepo.deactivateAllAssignmentsForSurvey(idEncuesta);
             return this.assignmentRepo.assignToGraduates(idEncuesta, egresados);
         });
     }

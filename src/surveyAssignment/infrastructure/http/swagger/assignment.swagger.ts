@@ -256,6 +256,68 @@
  *             schema:
  *               $ref: '#/components/schemas/SurveyAssignmentListResponse'
  *
+ * /api/encuestas/{id}/grupos:
+ *   get:
+ *     summary: Lista los grupos asignados a una encuesta
+ *     description: |
+ *       Devuelve un resumen de todos los grupos que tienen participantes activos en la encuesta, 
+ *       incluyendo cantidad de participantes y estado de respuestas por grupo.
+ *       
+ *       **Instrucciones:**
+ *       - Este endpoint es útil para auditoría: ver exactamente a qué grupos se envió la encuesta.
+ *       - Cada grupo muestra el total de participantes, cuántos respondieron y cuántos están pendientes.
+ *       - Solo incluye grupos con al menos un participante activo en la encuesta.
+ *     tags:
+ *       - SurveyAssignment
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         example: 1
+ *     responses:
+ *       200:
+ *         description: |
+ *           Listado de grupos con participantes asignados a la encuesta.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       type:
+ *                         type: string
+ *                         example: grupo-encuesta
+ *                       id:
+ *                         type: integer
+ *                         example: 105
+ *                       attributes:
+ *                         type: object
+ *                         properties:
+ *                           id_grupo:
+ *                             type: integer
+ *                             example: 105
+ *                           nombre:
+ *                             type: string
+ *                             example: "Egresados de Software 2024"
+ *                           cantidad_participantes:
+ *                             type: integer
+ *                             example: 150
+ *                           estado_respuesta:
+ *                             type: object
+ *                             properties:
+ *                               contestadas:
+ *                                 type: integer
+ *                                 example: 80
+ *                               pendientes:
+ *                                 type: integer
+ *                                 example: 70
+ *
  * /api/encuestas/{id}/participantes/{uuid}:
  *   delete:
  *     summary: Revoca el acceso de un participante a la encuesta
