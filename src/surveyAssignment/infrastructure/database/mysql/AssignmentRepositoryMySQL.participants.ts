@@ -40,11 +40,15 @@ export async function listParticipantsQuery(
     ee.is_active,
     e.nombre, e.primer_apellido, e.segundo_apellido, e.matricula, e.email,
     pe.nombre as programa_educativo,
+    gm.id_grupo,
+    ge.nombre as grupo_nombre,
     IF(r.id_respuesta IS NOT NULL, 'contestada', 'pendiente') as estado_respuesta,
     r.fecha_respuesta
   FROM encuesta_egresados ee
   INNER JOIN egresado e ON ee.id_egresado = e.id_egresado
   LEFT JOIN programa_educativo pe ON e.id_programa_educativo = pe.id_programa_educativo
+  LEFT JOIN grupo_miembro gm ON e.id_egresado = gm.id_egresado
+  LEFT JOIN grupo_egresado ge ON gm.id_grupo = ge.id_grupo
   LEFT JOIN encuesta ON encuesta.id_encuesta = ee.id_encuesta
   LEFT JOIN respuesta r ON (r.id_egresado = e.id_egresado AND r.id_formulario = encuesta.id_formulario)
   WHERE ${where}
@@ -55,7 +59,7 @@ export async function listParticipantsQuery(
   const [rows]: [any[], any] = await MysqlConnection.query(sql, params);
   // Para meta: contar total
   const [countRows]: [any[], any] = await MysqlConnection.query(
-    `SELECT COUNT(*) as total FROM encuesta_egresados ee INNER JOIN egresado e ON ee.id_egresado = e.id_egresado LEFT JOIN programa_educativo pe ON e.id_programa_educativo = pe.id_programa_educativo LEFT JOIN encuesta ON encuesta.id_encuesta = ee.id_encuesta LEFT JOIN respuesta r ON (r.id_egresado = e.id_egresado AND r.id_formulario = encuesta.id_formulario) WHERE ${where}`,
+    `SELECT COUNT(*) as total FROM encuesta_egresados ee INNER JOIN egresado e ON ee.id_egresado = e.id_egresado LEFT JOIN programa_educativo pe ON e.id_programa_educativo = pe.id_programa_educativo LEFT JOIN grupo_miembro gm ON e.id_egresado = gm.id_egresado LEFT JOIN grupo_egresado ge ON gm.id_grupo = ge.id_grupo LEFT JOIN encuesta ON encuesta.id_encuesta = ee.id_encuesta LEFT JOIN respuesta r ON (r.id_egresado = e.id_egresado AND r.id_formulario = encuesta.id_formulario) WHERE ${where}`,
     params.slice(0, params.length - 2)
   );
   return {
@@ -71,6 +75,10 @@ export async function listParticipantsQuery(
         is_active: !!row.is_active,
         estado_respuesta: row.estado_respuesta,
         fecha_respuesta: row.fecha_respuesta,
+        grupo: row.id_grupo ? {
+          id_grupo: row.id_grupo,
+          nombre: row.grupo_nombre
+        } : null,
         egresado: {
           nombre: row.nombre,
           primer_apellido: row.primer_apellido,

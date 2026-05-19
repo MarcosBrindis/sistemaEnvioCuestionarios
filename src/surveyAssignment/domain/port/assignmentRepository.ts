@@ -5,6 +5,8 @@ export interface AssignmentRepository {
     egresados: number[]
   ): Promise<{ created: number; reactivated: number; skipped: number }>;
 
+  deactivateAllAssignmentsForSurvey(idEncuesta: number): Promise<void>;
+
   listParticipants(
     idEncuesta: number,
     options: {
@@ -17,4 +19,6 @@ export interface AssignmentRepository {
   ): Promise<{ meta: any; data: any[] }>;
 
   revokeAccess(uuid: string): Promise<void>;
+
+  getGroupsAssignedToSurvey(idEncuesta: number): Promise<any[]>;
 }

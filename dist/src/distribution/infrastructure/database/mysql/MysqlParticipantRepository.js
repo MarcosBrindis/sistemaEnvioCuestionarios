@@ -37,5 +37,61 @@ class MysqlParticipantRepository {
             return rows;
         });
     }
+    findBirthdayCelebrants(referenceDate) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const dateValue = referenceDate.toISOString().slice(0, 10);
+            const query = `
+      SELECT
+        CAST(e.id_egresado AS CHAR) as uuid,
+        e.email,
+        TRIM(CONCAT(e.nombre, ' ', e.primer_apellido, ' ', IFNULL(e.segundo_apellido, ''))) as nombre_completo
+      FROM egresado e
+      WHERE
+        e.is_active = 1
+        AND e.email IS NOT NULL
+        AND TRIM(e.email) <> ''
+        AND e.fecha_nacimiento IS NOT NULL
+        AND MONTH(e.fecha_nacimiento) = MONTH(?)
+        AND DAY(e.fecha_nacimiento) = DAY(?)
+    `;
+            const [rows] = yield connection_1.MysqlConnection.query(query, [dateValue, dateValue]);
+            return rows;
+        });
+    }
+    findBirthdayTestTargets(targets) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const egresadoIds = (targets.egresadoIds || []).filter((id) => Number.isInteger(id) && id > 0);
+            const emails = (targets.emails || [])
+                .map((email) => String(email).trim().toLowerCase())
+                .filter((email) => email.length > 0);
+            if (egresadoIds.length === 0 && emails.length === 0) {
+                return [];
+            }
+            const whereParts = [];
+            const params = [];
+            if (egresadoIds.length > 0) {
+                whereParts.push(`e.id_egresado IN (${egresadoIds.map(() => '?').join(', ')})`);
+                params.push(...egresadoIds);
+            }
+            if (emails.length > 0) {
+                whereParts.push(`LOWER(TRIM(e.email)) IN (${emails.map(() => '?').join(', ')})`);
+                params.push(...emails);
+            }
+            const query = `
+      SELECT
+        CAST(e.id_egresado AS CHAR) as uuid,
+        e.email,
+        TRIM(CONCAT(e.nombre, ' ', e.primer_apellido, ' ', IFNULL(e.segundo_apellido, ''))) as nombre_completo
+      FROM egresado e
+      WHERE
+        e.is_active = 1
+        AND e.email IS NOT NULL
+        AND TRIM(e.email) <> ''
+        AND (${whereParts.join(' OR ')})
+    `;
+            const [rows] = yield connection_1.MysqlConnection.query(query, params);
+            return rows;
+        });
+    }
 }
 exports.MysqlParticipantRepository = MysqlParticipantRepository;

@@ -17,6 +17,8 @@ class AssignSurveyGroup {
     }
     execute(idEncuesta, idGroup) {
         return __awaiter(this, void 0, void 0, function* () {
+            // La encuesta conserva historial, pero solo el último grupo asignado queda activo.
+            yield this.assignmentRepo.deactivateAllAssignmentsForSurvey(idEncuesta);
             // Obtener todos los egresados del grupo
             const [rows] = yield connection_1.MysqlConnection.query('SELECT id_egresado FROM grupo_miembro WHERE id_grupo = ?', [idGroup]);
             const egresados = rows.map(r => r.id_egresado);

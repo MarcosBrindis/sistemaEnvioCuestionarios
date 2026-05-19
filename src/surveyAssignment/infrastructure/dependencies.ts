@@ -3,16 +3,19 @@ import { AssignSurvey } from '../application/usecase/AssignSurvey';
 import { AssignSurveyGroup } from '../application/usecase/AssignSurveyGroup';
 import { ListSurveyParticipants } from '../application/usecase/ListSurveyParticipants';
 import { RevokeSurveyAccess } from '../application/usecase/RevokeSurveyAccess';
+import { GetGroupsAssignedToSurvey } from '../application/usecase/GetGroupsAssignedToSurvey';
 
 const assignmentRepository = new AssignmentRepositoryMySQL();
 const assignSurvey = new AssignSurvey(assignmentRepository);
 const assignSurveyGroup = new AssignSurveyGroup(assignmentRepository);
 const listSurveyParticipants = new ListSurveyParticipants(assignmentRepository);
 const revokeSurveyAccess = new RevokeSurveyAccess(assignmentRepository);
+const getGroupsAssignedToSurvey = new GetGroupsAssignedToSurvey(assignmentRepository);
 
 export const assignmentDependencies = {
   assignSurvey,
   assignSurveyGroup,
   listSurveyParticipants,
   revokeSurveyAccess,
+  getGroupsAssignedToSurvey,
 };

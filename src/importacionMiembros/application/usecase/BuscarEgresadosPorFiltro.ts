@@ -25,7 +25,14 @@ export class BuscarEgresadosPorFiltro {
     if (filtros.cohorte) repoFiltros.cohorte = filtros.cohorte;
     if (filtros.prefijo_matricula) repoFiltros.prefijo_matricula = filtros.prefijo_matricula;
     if (filtros.estatus !== undefined && filtros.estatus !== '') repoFiltros.estatus = filtros.estatus;
-    if (filtros.busqueda) repoFiltros.busqueda = filtros.busqueda;
+    if (filtros.busqueda) {
+      const busqueda = filtros.busqueda.trim();
+      if (/^\d+$/.test(busqueda) && !repoFiltros.prefijo_matricula) {
+        repoFiltros.prefijo_matricula = busqueda;
+      } else {
+        repoFiltros.busqueda = busqueda;
+      }
+    }
 
     // Buscar todos los egresados que cumplen el filtro
     const todos = await this.egresadoRepository.buscarEgresadosAvanzado(repoFiltros);

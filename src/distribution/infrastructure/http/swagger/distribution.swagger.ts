@@ -4,9 +4,12 @@
  *   post:
  *     summary: Despachar recordatorios de encuesta
  *     description: >
- *       Envía correos a los egresados asignados a una encuesta. Si se envía `id_group`,
- *       primero genera (o reactiva) la relación encuesta-egresado para ese grupo
- *       (creando UUIDs en `encuesta_egresados`) y luego despacha los correos.
+ *       Envía correos a los egresados de un grupo específico asignados a una encuesta.
+ *       Primero asigna (o reactiva) la relación encuesta-egresado para ese grupo
+ *       (creando/reactivando UUIDs en `encuesta_egresados`) y luego despacha los correos.
+ *       
+ *       **IMPORTANTE**: El parámetro `id_group` es OBLIGATORIO. Esto asegura que el envío
+ *       sea explícito a un grupo específico, evitando distribuciones accidentales a todos los egresados.
  *     tags:
  *       - Distribution
  *     requestBody:
@@ -27,7 +30,7 @@
  *                 example: 10
  *               id_group:
  *                 type: integer
- *                 description: ID del grupo desde el cual se asignan egresados a la encuesta.
+ *                 description: ID del grupo al cual se envía la encuesta. **REQUERIDO**.
  *                 example: 105
  *               filtro:
  *                 type: string
@@ -67,6 +70,8 @@
  *                       type: integer
  *                     message:
  *                       type: string
+ *       400:
+ *         description: Bad Request. id_group es requerido.
  */
 
 /**

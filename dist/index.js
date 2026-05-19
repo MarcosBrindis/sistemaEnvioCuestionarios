@@ -42,10 +42,13 @@ const account_router_1 = __importDefault(require("./src/mailing/infrastructure/h
 const client_router_1 = __importDefault(require("./src/mailing/client/infrastructure/http/router/client.router"));
 const sender_router_1 = __importDefault(require("./src/mailing/sender/infrastructure/http/router/sender.router"));
 const distribution_router_1 = __importDefault(require("./src/distribution/infrastructure/http/router/distribution.router"));
+const dependencies_1 = require("./src/distribution/infrastructure/dependencies");
+const BirthdayDispatchScheduler_1 = require("./src/distribution/infrastructure/cron/BirthdayDispatchScheduler");
 const analytics_router_1 = __importDefault(require("./src/analytics/infrastructure/http/router/analytics.router"));
 const datosDomiciliariosRoutes_1 = __importDefault(require("./src/datosDomiciliarios/infrastructure/http/routes/datosDomiciliariosRoutes"));
 const datosLaboralesRoutes_1 = __importDefault(require("./src/datosLaborales/infrastructure/http/routes/datosLaboralesRoutes"));
 const fileRoutes_1 = __importDefault(require("./src/files/infrastructure/http/router/fileRoutes"));
+const automaticEvents_router_1 = __importDefault(require("./src/automaticEvents/infrastructure/http/router/automaticEvents.router"));
 const app = (0, express_1.default)();
 const port = process.env.PORT || 3000;
 function startServer() {
@@ -111,6 +114,8 @@ function startServer() {
         app.use('/mailing', sender_router_1.default);
         app.use('/distribution', distribution_router_1.default);
         app.use('/analytics', analytics_router_1.default);
+        app.use('/api/automatic-events', automaticEvents_router_1.default);
+        (0, BirthdayDispatchScheduler_1.scheduleBirthdayDispatchJob)(dependencies_1.dispatchBirthdayCongratsUseCase);
         // Ruta raíz
         app.get('/', (_req, res) => {
             res.send('servidor iniciado');
