@@ -9,6 +9,7 @@ import { UpdateEstadoEgresado } from '../application/usecase/UpdateEstadoEgresad
 import { PeriodoRepositoryMySQL } from './database/mysql/PeriodoRepositoryMYSQL';
 import { ProgramaEducativoRepositoryMySQL } from './database/mysql/ProgramaEducativoRepositoryMYSQL';
 import { GetProgramasEducativos } from '../application/usecase/GetProgramasEducativos';
+import { GetCohortesDisponibles } from '../application/usecase/GetCohortesDisponibles';
 import { GetEgresadoWithAchievements } from '../application/usecase/GetEgresadoWithAchievements';
 import { GetAllEgresadosWithAchievements } from '../application/usecase/GetAllEgresadosWithAchievements';
 import { fileDependencies } from '../../files/infrastructure/dependencies';
@@ -36,6 +37,7 @@ export const dependencies = {
     BATCH_SIZE
   ),
   getProgramasEducativos: new GetProgramasEducativos(programaRepo),
+  getCohortesDisponibles: new GetCohortesDisponibles(periodoRepo),
   egresadoRepository: egresadoRepo,
   periodoRepository: periodoRepo,
   programaEducativoRepository: programaRepo,
