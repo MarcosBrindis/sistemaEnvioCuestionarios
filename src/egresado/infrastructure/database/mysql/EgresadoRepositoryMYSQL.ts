@@ -244,8 +244,11 @@ export class EgresadoRepositoryMySQL extends BaseEgresadoRepository {
       params.push(filtros.id_periodo_egreso);
     }
     if (filtros.cohorte) {
-      sql += ' AND p.cohorte = ?';
-      params.push(String(filtros.cohorte));
+      // Acepta tanto el código de cohorte como el ID interno del periodo,
+      // porque algunas pantallas envían el identificador del selector y otras el código visible.
+      sql += ' AND (p.cohorte = ? OR p.id_periodo = ? OR p.periodo_id_externo = ?)';
+      const cohorte = String(filtros.cohorte).trim();
+      params.push(cohorte, cohorte, cohorte);
     }
     if (filtros.prefijo_matricula) {
       sql += ' AND e.matricula LIKE ?';

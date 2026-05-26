@@ -12,6 +12,7 @@ import { updateEgresadoSinopsisController } from '../controller/updateEgresadoSi
 import { getEgresadoSinopsisController } from '../controller/getEgresadoSinopsisController';
 import { requestLogger } from '../../../../core/middleware/requestLogger';
 import { getProgramasEducativosController } from '../controller/getProgramasEducativosController';
+import { getCohortesDisponiblesController } from '../controller/getCohortesDisponiblesController';
 import { getEgresadoWithAchievementsController } from '../controller/getEgresadoWithAchievementsController';
 import { getAllEgresadosWithAchievementsController } from '../controller/getAllEgresadosWithAchievementsController';
 import { multerConfig } from '../../../../config/multer';
@@ -648,6 +649,51 @@ router.patch('/:id/sinopsis', updateEgresadoSinopsisController);
  *                         example: Ingeniería en Software
  */
 router.get('/programas-educativos', getProgramasEducativosController(dependencies.getProgramasEducativos));
+
+/**
+ * @openapi
+ * /api/egresado/cohortes:
+ *   get:
+ *     tags:
+ *       - Egresados
+ *     summary: Listar cohortes disponibles
+ *     description: |
+ *       Devuelve una lista de cohortes derivadas de los periodos locales.
+ *       Cada elemento incluye una etiqueta legible para mostrar en un desplegable
+ *       y el valor de cohorte que debe enviarse al backend.
+ *     responses:
+ *       200:
+ *         description: Lista de cohortes disponibles
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       value:
+ *                         oneOf:
+ *                           - type: integer
+ *                           - type: string
+ *                         example: 262
+ *                       label:
+ *                         type: string
+ *                         example: MAY-AGO 2026
+ *                       cohorte:
+ *                         type: string
+ *                         example: "262"
+ *                       periodo_id:
+ *                         type: integer
+ *                         example: 65
+ *                       name_period:
+ *                         type: string
+ *                         nullable: true
+ *                         example: MAYO-AGOSTO 2026
+ */
+router.get('/cohortes', getCohortesDisponiblesController(dependencies.getCohortesDisponibles));
 
 /**
  * @openapi
