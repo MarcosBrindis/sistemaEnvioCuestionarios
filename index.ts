@@ -81,8 +81,9 @@ async function startServer() {
         }
     }));
 
-    // Servir archivos estáticos desde la carpeta uploads
+    // Servir archivos estáticos desde la carpeta uploads e img
     app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+    app.use('/img', express.static(path.join(process.cwd(), 'img')));
 
     // Rutas
     app.use('/api/tipo-pregunta', typeQuestionRoutes);
