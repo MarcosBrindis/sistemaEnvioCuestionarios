@@ -15,3 +15,6 @@ yarn-error.log*
 
 instrucciones.md
 REPORTE_SEGURIDAD.md
+
+/database/
+/img/
