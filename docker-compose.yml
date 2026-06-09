@@ -10,10 +10,12 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
+      - BACKEND_URL=${BACKEND_URL}
     ports:
       - "${PORT:-3000}:3000"
     volumes:
       - uploads_data:/app/uploads
+      - ./img:/app/img
     networks:
       - backend_net
 
