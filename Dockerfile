@@ -21,6 +21,7 @@ ENV PORT=3000
 
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
+COPY img ./img
 
 RUN mkdir -p /app/uploads
 EXPOSE 3000
