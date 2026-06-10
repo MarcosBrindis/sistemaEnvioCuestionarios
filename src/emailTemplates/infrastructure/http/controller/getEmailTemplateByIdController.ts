@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { GetEmailTemplateById } from '../../../application/usecase/GetEmailTemplateById';
 import { handleGetError } from '../../../../core/middleware/errorHandler';
+import { replaceBackendUrl } from '../../../../core/utils/templateUtils';
 
 export const getEmailTemplateByIdController = (getEmailTemplateById: GetEmailTemplateById) => async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -22,8 +23,8 @@ export const getEmailTemplateByIdController = (getEmailTemplateById: GetEmailTem
         id: template.id.toString(),
         attributes: {
           subject: template.subject,
-          body: template.body,
-          layout_html: template.layoutHtml ?? null
+          body: replaceBackendUrl(template.body),
+          layout_html: replaceBackendUrl(template.layoutHtml)
         },
         relationships: {
           tipo_correo: { data: { type: 'tipo_correo', id: template.typeId } }
