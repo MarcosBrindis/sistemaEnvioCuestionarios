@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { UpdateEmailTemplate } from '../../../application/usecase/UpdateEmailTemplate';
 import { handleUpdateError } from '../../../../core/middleware/errorHandler';
+import { replaceBackendUrl } from '../../../../core/utils/templateUtils';
 
 export const updateEmailTemplateController = (updateEmailTemplate: UpdateEmailTemplate) => async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -39,8 +40,8 @@ export const updateEmailTemplateController = (updateEmailTemplate: UpdateEmailTe
         id: template.id.toString(),
         attributes: {
           subject: template.subject,
-          body: template.body,
-          layout_html: template.layoutHtml ?? null
+          body: replaceBackendUrl(template.body),
+          layout_html: replaceBackendUrl(template.layoutHtml)
         },
         relationships: {
           tipo_correo: { data: { type: 'tipo_correo', id: template.typeId } }
